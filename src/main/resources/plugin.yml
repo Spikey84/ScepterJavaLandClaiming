@@ -1,0 +1,7 @@
+main: io.github.spikey84.scepterjavaclaiming.Main
+version: 1.0
+name: ScepterJavaLandClaiming
+api-version: 1.13
+commands:
+  claimtool:
+    usage: /claimtool

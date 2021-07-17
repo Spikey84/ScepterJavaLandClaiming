@@ -1,0 +1,82 @@
+Time: 10
+TimeFormat: minutes # option of minutes or hours
+ClaimBlocksPerTime: 4
+DefaultClaimBlocks: 450 # this is how much claim blocks is given to someone automatically when they join the server for the first time
+PricePerClaimBlock: 250 # this is how much it charges to buy 1 claim block with /buyclaimblock <amount>
+PricePerClaimBlockSell: 50 # this is how much you get paid to sell 1 claim block with /sellclaimblock <amount>
+UnclaimPercent: 85 # this is how much % of their claim blocks they get back to /unclaim - so when they unclaim and this is set to example 85 they will lose 15% of the claimed blocks
+UnclaimPercentWorking: 150 # In order for it to charge the "taxes" for unclaiming ^ they must have this much or more claim blocks claimed
+
+LandClaimTool: 284:0 # this is the item you use to claim land
+LandClaimToolName: "Land Claim Tool"
+LandClaimToolLore: "use this item to claim your land, left click POS1 and right click POS2. Than type /claim"
+LandClaimChecker: 280:0 # this is the item you tap to see who owns a claim
+LandClaimCheckerName: "Land Claim Checker"
+LandClaimCheckerLore: "use this item to see owns, or claimed land"
+ToolCooldown: 24 # Amount of hours before someone can /claim tools and get the tools again
+
+ClaimDisabledWorlds: ["ResouceWorld", "world_nether", "world_the_end"]
+
+ClaimHelp: # showed when running /claim help - ill color code this later
+  - "&e---&dScepterJava&e---&dClaim&e---&dHelp&e---"
+  - "/claim help - this menu"
+  - "/claim tools - get given the claim tools"
+  - "/claim settings - claim settings"
+  - "/claim sethome - set claim home (must be claim owner or user)" # Permission: scepter.default
+  - "/claim home - teleport to claim home (must be claim owner or user)" # Permission: scepter.default
+  - "/claim add <user> - adds a user as a member of your claim (must be claim owner)" # Permission: scepter.default
+  - "/claim remove <user> - remove a user as a member of your claim (must be claim owner)" # Permission: scepter.default
+  - "/claim blacklist <user> - adds a user to your claim blacklist, they cannot enter your claim (must be claim owner)" # Permission: scepter.default
+  - "/claim unblacklist <user> - removes a user from your claim blacklist (must be claim owner)" # Permission: scepter.default
+  - "/claim transfer <user> - transfers claim ownership" # Permission: scepter.default
+  - "/claim - claim the land after selecting POS1 & POS2" # Permission: scepter.default
+  - "/unclaim - unclaim your land, taxes will be charged if you own more than 150 blocks" # Permission: scepter.default
+  - "/trust <user> - trust a user in your claim" # Permission: scepter.default
+  - "/untrust <user> - untrust a user in your claim" # Permission: scepter.default
+  - "/buyclaimblocks <amount> - buy claim blocks $250 each" # Permission: scepter.default
+  - "/sellclaimblocks <amount> - sell claim blocks $50 each" # Permission: scepter.default
+  - "/adminclaim <name>- admin claim land (usually for spawn claiming)" # Permission: scepter.adminclaim
+  - "/adminclaimsettings - admin claim settings" # Permission: scepter.adminclaim
+  - "/adminunclaim - unclaim any land" # Permission: scepter.adminclaim
+
+# Staff Permissions
+# Blacklist Bypass: scepter.blacklistbypass (so they cant try to black list staff from entering their claim)
+# Interact with anything: scepter.adminbypass
+# Open any users claim settings: scepter.adminclaim (/claimsettings <user>)
+
+ClaimSettings:
+  pvp:
+    default: true
+  mob_spawning:
+    default: true
+  animal_spawning:
+    default: true
+  mob_griefing:
+    default: false
+  ender_pearls:
+    default: true
+  item_pickup:
+    default: true
+  item_drop:
+    default: true
+  fire spread:
+    default: true
+  fire_damage:
+    default: true
+  public_use_doors:
+    default: true
+  public_use_gates:
+    default: true
+  public_use_crafting_table:
+    default: true
+  public_use_portals:
+    default: true
+  public_use_anvil:
+    default: false
+  public_use_enchattable:
+    default: true
+  public_use_chest:
+    default: false
+  public_use_enderchest:
+    default: true
+# If the setting is public_setting it means if a player denies it, in their claim... you must be claim trusted or a claim member to bypass using it
