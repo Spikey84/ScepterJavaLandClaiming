@@ -1,7 +1,9 @@
 package io.github.spikey84.scepterjavaclaiming;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
 import io.github.spikey84.scepterjavaclaiming.utils.UUIDUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -41,9 +43,11 @@ public class ClaimDAO {
                     if (b == (byte) 1) settings.put(ClaimSetting.getFromID((byte) i), true); else settings.put(ClaimSetting.getFromID((byte) i), false);
                 }
                 String worldName = resultSet.getString("world_name");
-                String serverName = resultSet.getString("server_name");
+                String serverName = "removed";
 
-                claims.add(new Claim(new Location(Bukkit.getWorld(worldName), xO, 255, zO), xL, zL, owner, getMembers(connection, id), settings));
+                Claim claim = new Claim(new Location(Bukkit.getWorld(worldName), xO, 255, zO), xL, zL, owner, getMembers(connection, id), settings);
+                claim.setId(id);
+                claims.add(claim);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,62 +93,64 @@ public class ClaimDAO {
         for (Map.Entry<ClaimSetting, Boolean> entry : claim.getClaimSettings().entrySet()) {
             if (entry.getValue()) settings.add((byte) 1); else settings.add((byte) 0);
         }
-        byte[] bytes = new byte[]{};
-        for (byte b : settings) {
-            bytes[bytes.length] = b;
-        }
+
 
         try {
             Class.forName("org.sqlite.JDBC");
             String query;
 
-            if (claim.getId() != -1) query = """
-                    INSERT INTO active_multipliers (owner, settings, x_length, z_length, origin_x, origin_z, world_name, server_name)\
+            if (claim.getId() == -1) query = """
+                    INSERT INTO claims (owner, x_length, z_length, origin_x, origin_z, world_name, settings)\
                     VALUES\
-                    (?, ?, ?, ?, ?, ?, ?, ?);
+                    (?, ?, ?, ?, ?, ?, ?);
                     """; else query = """
-                    INSERT INTO active_multipliers (id, owner, settings, x_length, z_length, origin_x, origin_z, world_name, server_name)\
+                    INSERT INTO claims (id, owner, settings, x_length, z_length, origin_x, origin_z, world_name, settings)\
                     VALUES\
                     (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE \
-                    SET id=?, owner=?, settings=?, x_length=?, z_length=?, origin_x=?, origin_z=?, world_name=?, server_name=?;
+                    SET id=?, owner=?, settings=?, x_length=?, z_length=?, origin_x=?, origin_z=?, world_name=?, settings=?;
                     """;
             statement = connection.prepareStatement(query);
 
-            if (claim.getId() != -1) {
+            if (claim.getId() == -1) {
+                statement.setString(1, UUIDUtils.strip(claim.getOwner()));
+                statement.setInt(2, claim.getXLength());
+                statement.setInt(3, claim.getZLength());
+                statement.setInt(4, claim.getOrigin().getBlockX());
+                statement.setInt(5, claim.getOrigin().getBlockZ());
+                statement.setString(6, "test");
+                statement.setBytes(7, Bytes.toArray(settings));
+            } else {
                 statement.setInt(1, claim.getId());
                 statement.setString(2, UUIDUtils.strip(claim.getOwner()));
-                statement.setBytes(3, bytes);
-                statement.setInt(4, claim.getXLength());
-                statement.setInt(5, claim.getZLength());
-                statement.setInt(6, claim.getOrigin().getBlockX());
-                statement.setInt(7, claim.getOrigin().getBlockZ());
-                statement.setString(8, claim.getOrigin().getWorld().getName());
-                statement.setString(9, Bukkit.getServer().getName());
-                statement.setInt(10, claim.getId());
-                statement.setString(11, UUIDUtils.strip(claim.getOwner()));
-                statement.setBytes(12, bytes);
-                statement.setInt(13, claim.getXLength());
-                statement.setInt(14, claim.getZLength());
-                statement.setInt(15, claim.getOrigin().getBlockX());
-                statement.setInt(16, claim.getOrigin().getBlockZ());
-                statement.setString(17, claim.getOrigin().getWorld().getName());
-                statement.setString(18, Bukkit.getServer().getName());
-            } else {
-                statement.setString(1, UUIDUtils.strip(claim.getOwner()));
-                statement.setBytes(2, bytes);
                 statement.setInt(3, claim.getXLength());
                 statement.setInt(4, claim.getZLength());
                 statement.setInt(5, claim.getOrigin().getBlockX());
                 statement.setInt(6, claim.getOrigin().getBlockZ());
                 statement.setString(7, claim.getOrigin().getWorld().getName());
-                statement.setString(8, Bukkit.getServer().getName());
-
-
+                statement.setBytes(8, Bytes.toArray(settings));
+                statement.setInt(9, claim.getId());
+                statement.setString(10, UUIDUtils.strip(claim.getOwner()));
+                statement.setInt(11, claim.getXLength());
+                statement.setInt(12, claim.getZLength());
+                statement.setInt(13, claim.getOrigin().getBlockX());
+                statement.setInt(14, claim.getOrigin().getBlockZ());
+                statement.setString(15, claim.getOrigin().getWorld().getName());
+                statement.setBytes(16, Bytes.toArray(settings));
             }
-
 
             statement.execute();
             statement.close();
+            if (claim.getId() == -1) {
+                String s = "SELECT id from claims where id = (select max(id) from claims);";
+                Statement statement1 = connection.createStatement();
+                statement1.execute(s);
+
+
+                ResultSet resultSet = statement1.getResultSet();
+                resultSet.next();
+                claim.setId(resultSet.getInt(1));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,6 +166,7 @@ public class ClaimDAO {
 
             statement = connection.prepareStatement(query);
             statement.setInt(1, id);
+            statement.execute();
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {

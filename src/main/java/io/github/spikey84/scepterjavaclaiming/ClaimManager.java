@@ -1,6 +1,7 @@
 package io.github.spikey84.scepterjavaclaiming;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -9,16 +10,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 public class ClaimManager {
     private List<Claim> claims;
     private Plugin plugin;
+    private HashMap<UUID, Boolean> claiming;
 
     public ClaimManager(Plugin plugin) {
-        plugin = plugin;
+        this.plugin = plugin;
         claims = Lists.newArrayList();
+        claiming = Maps.newHashMap();
         try (Connection connection = DatabaseManager.getConnection()) {
             claims = ClaimDAO.getClaims(connection);
         } catch (Exception e) {
@@ -74,8 +78,16 @@ public class ClaimManager {
     public ItemStack getClaimItem() {
         ItemStack itemStack = new ItemStack(Material.GOLDEN_SHOVEL);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setLocalizedName(ChatColor.DARK_PURPLE + "Claiming Tool");
+        itemMeta.setDisplayName(ChatColor.DARK_PURPLE + "Claiming Tool");
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+    }
+
+    public HashMap<UUID, Boolean> getClaiming() {
+        return claiming;
+    }
+
+    public List<Claim> getClaims() {
+        return claims;
     }
 }

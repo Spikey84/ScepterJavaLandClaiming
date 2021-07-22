@@ -11,28 +11,48 @@ public class DatabaseManager {
     private Plugin plugin;
     private static File databaseFile;
     private String query = """
-            CREATE TABLE IF NOT EXISTS claims (
-            `id` INT,
-            `owner` BINARY(16) NOT NULL,
-            `settings` BYTE[],
-            `x_length` INT NOT NULL,
-            `z_length` INT NOT NULL,
-            `origin_x` INT NOT NULL,
-            `origin_z` INT NOT NULL,
-            `world_name` TEXT NOT NULL,
-            `server_name` TEXT NOT NULL,
-            PRIMARY KEY (`id`)
+            CREATE TABLE IF NOT EXISTS claims (\
+            id INTEGER PRIMARY KEY AUTOINCREMENT,\
+            owner TEXT NOT NULL,\
+            settings BYTE[],\
+            x_length INT NOT NULL,\
+            z_length INT NOT NULL,\
+            origin_x INT NOT NULL,\
+            origin_z INT NOT NULL,\
+            world_name TEXT \
             );
             """;
     private String query2 = """
-            CREATE TABLE IF NOT EXISTS claim_members (
-            `uuid` BINARY(16) NOT NULL,
-            `claim_id` INT,
+            CREATE TABLE IF NOT EXISTS claim_members (\
+            uuid VARCHAR NOT NULL,\
+            claim_id INT NOT NULL\
+            );
+            """;
+    private String query3 = """
+            CREATE TABLE IF NOT EXISTS claim_blacklist (\
+            uuid VARCHAR NOT NULL,\
+            claim_id INT NOT NULL\
+            );
+            """;
+    private String query4 = """
+            CREATE TABLE IF NOT EXISTS block_accounts (\
+            uuid VARCHAR NOT NULL,\
+            blocks BIGINT NOT NULL\
+            );
+            """;
+    private String query5 = """
+            CREATE TABLE IF NOT EXISTS claim_homes (\
+            claim_id INT NOT NULL,\
+            x INT NOT NULL,\
+            y INT NOT NULL,\
+            z INT NOT NULL,\
+            world_name TEXT NOT NULL\
             );
             """;
 
     public DatabaseManager(Plugin plugin) {
         this.plugin = plugin;
+        createDatabase();
     }
 
     public void createDatabase() {
@@ -45,12 +65,24 @@ public class DatabaseManager {
             }
         }
 
-        this.databaseFile = databaseFolder;
+        databaseFile = databaseFolder;
 
         Connection connection = getConnection();
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(query);
+            statement.close();
+            statement = connection.createStatement();
+            statement.executeUpdate(query2);
+            statement.close();
+            statement = connection.createStatement();
+            statement.executeUpdate(query3);
+            statement.close();
+            statement = connection.createStatement();
+            statement.executeUpdate(query4);
+            statement.close();
+            statement = connection.createStatement();
+            statement.executeUpdate(query5);
             statement.close();
         } catch (Exception e) {
             e.printStackTrace();
