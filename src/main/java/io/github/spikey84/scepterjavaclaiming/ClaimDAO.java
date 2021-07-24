@@ -2,6 +2,7 @@ package io.github.spikey84.scepterjavaclaiming;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Bytes;
+import io.github.spikey84.scepterjavaclaiming.blacklists.BlackListDAO;
 import io.github.spikey84.scepterjavaclaiming.utils.UUIDUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -27,7 +28,8 @@ public class ClaimDAO {
             String query = "SELECT * FROM claims;";
 
             statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
+            statement.execute(query);
+            ResultSet resultSet = statement.getResultSet();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
@@ -45,7 +47,7 @@ public class ClaimDAO {
                 String worldName = resultSet.getString("world_name");
                 String serverName = "removed";
 
-                Claim claim = new Claim(new Location(Bukkit.getWorld(worldName), xO, 255, zO), xL, zL, owner, getMembers(connection, id), settings);
+                Claim claim = new Claim(new Location(Bukkit.getWorld(worldName), xO, 255, zO), xL, zL, owner, getMembers(connection, id), settings, BlackListDAO.getBlacklist(connection, id));
                 claim.setId(id);
                 claims.add(claim);
             }
@@ -78,8 +80,20 @@ public class ClaimDAO {
             statement = connection.prepareStatement(query);
             statement.setInt(1, id);
             statement.execute();
-
             statement.close();
+            query = """
+                    DELETE FROM claim_blacklist WHERE claim_id=?;
+                    """;
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            statement.execute();
+            statement.close();
+            query = """
+                    DELETE FROM claim_homes WHERE claim_id=?;
+                    """;
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            statement.execute();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -167,7 +181,7 @@ public class ClaimDAO {
             statement = connection.prepareStatement(query);
             statement.setInt(1, id);
             statement.execute();
-            ResultSet resultSet = statement.executeQuery(query);
+            ResultSet resultSet = statement.getResultSet();
 
             while (resultSet.next()) {
                 UUID uuid = UUIDUtils.build(resultSet.getString("uuid"));
@@ -206,7 +220,7 @@ public class ClaimDAO {
         try {
             Class.forName("org.sqlite.JDBC");
             String query = """
-                    INSERT INTO claim_members (id, uuid) \
+                    INSERT INTO claim_members (claim_id, uuid) \
                     VALUES\
                     (?, ?);
                     """;

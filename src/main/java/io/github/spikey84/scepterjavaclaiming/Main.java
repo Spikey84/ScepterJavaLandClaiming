@@ -1,19 +1,18 @@
 package io.github.spikey84.scepterjavaclaiming;
 
-import io.github.spikey84.scepterjavaclaiming.commands.ClaimItemCommand;
+import io.github.spikey84.scepterjavaclaiming.blacklists.BlackListListener;
+import io.github.spikey84.scepterjavaclaiming.blocks.ClaimBlocksManager;
+import io.github.spikey84.scepterjavaclaiming.commands.ClaimCommand;
+import io.github.spikey84.scepterjavaclaiming.commands.ClaimTab;
+import io.github.spikey84.scepterjavaclaiming.commands.UnclaimCommand;
 import io.github.spikey84.scepterjavaclaiming.homes.HomeManager;
 import io.github.spikey84.scepterjavaclaiming.listeners.ClaimToolListener;
 import io.github.spikey84.scepterjavaclaiming.listeners.ProtectionListener;
 import io.github.spikey84.scepterjavaclaiming.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.units.qual.C;
-
-import java.util.Collections;
-import java.util.List;
 
 public class Main extends JavaPlugin {
     private DatabaseManager databaseManager;
@@ -21,6 +20,7 @@ public class Main extends JavaPlugin {
     private ClaimManager claimManager;
     private ConfigManager configManager;
     private HomeManager homeManager;
+    private ClaimBlocksManager claimBlocksManager;
 
     private final FileConfiguration config = getConfig();
 
@@ -35,10 +35,14 @@ public class Main extends JavaPlugin {
         this.claimManager = new ClaimManager(plugin);
         this.configManager = new ConfigManager(getConfig());
         this.homeManager = new HomeManager();
+        this.claimBlocksManager = new ClaimBlocksManager(configManager);
 
-        getCommand("claimtool").setExecutor(new ClaimItemCommand(claimManager));
+        getCommand("claim").setExecutor(new ClaimCommand(configManager, claimManager, claimBlocksManager, homeManager));
+        getCommand("claim").setTabCompleter(new ClaimTab());
+        getCommand("unclaim").setExecutor(new UnclaimCommand(claimManager));
 
         Bukkit.getPluginManager().registerEvents(new ClaimToolListener(claimManager, plugin, configManager), this);
         Bukkit.getPluginManager().registerEvents(new ProtectionListener(claimManager), this);
+        Bukkit.getPluginManager().registerEvents(new BlackListListener(claimManager), this);
     }
 }

@@ -21,7 +21,7 @@ public class BlackListDAO {
             statement = connection.prepareStatement(query);
             statement.setInt(1, id);
             statement.execute();
-            ResultSet resultSet = statement.executeQuery(query);
+            ResultSet resultSet = statement.getResultSet();
 
             while (resultSet.next()) {
                 UUID uuid = UUIDUtils.build(resultSet.getString("uuid"));

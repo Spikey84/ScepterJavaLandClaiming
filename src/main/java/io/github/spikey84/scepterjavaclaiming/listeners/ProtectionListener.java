@@ -105,7 +105,7 @@ public class ProtectionListener implements Listener {
 
     @EventHandler
     public void playerDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player) return;
+        if (!(event.getDamager() instanceof Player)) return;
         if (!interactionAllowed(event.getEntity().getLocation(), ClaimSetting.PVP, (Player) event.getDamager())) event.setCancelled(true);
     }
 

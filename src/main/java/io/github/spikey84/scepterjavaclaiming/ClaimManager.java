@@ -2,6 +2,8 @@ package io.github.spikey84.scepterjavaclaiming;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.github.spikey84.scepterjavaclaiming.utils.Rectangle;
+import io.github.spikey84.scepterjavaclaiming.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,12 +19,12 @@ import java.util.UUID;
 public class ClaimManager {
     private List<Claim> claims;
     private Plugin plugin;
-    private HashMap<UUID, Boolean> claiming;
+    private HashMap<UUID, Rectangle> tempClaiming;
 
     public ClaimManager(Plugin plugin) {
         this.plugin = plugin;
         claims = Lists.newArrayList();
-        claiming = Maps.newHashMap();
+        tempClaiming = Maps.newHashMap();
         try (Connection connection = DatabaseManager.getConnection()) {
             claims = ClaimDAO.getClaims(connection);
         } catch (Exception e) {
@@ -33,7 +35,7 @@ public class ClaimManager {
 
     public void addClaim(Claim claim) {
         claims.add(claim);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
                 ClaimDAO.addClaim(connection, claim);
             } catch (Exception e) {
@@ -44,7 +46,7 @@ public class ClaimManager {
 
     public void delClaim(Claim claim) {
         claims.remove(claim);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
                 ClaimDAO.delClaim(connection, claim.getId());
             } catch (Exception e) {
@@ -55,7 +57,7 @@ public class ClaimManager {
 
     public void addMember(UUID uuid, Claim claim) {
         claim.addMember(uuid);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
                 ClaimDAO.addMember(connection, claim.getId(), uuid);
             } catch (Exception e) {
@@ -66,7 +68,7 @@ public class ClaimManager {
 
     public void removeMember(UUID uuid, Claim claim) {
         claim.removeMember(uuid);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
                 ClaimDAO.removeMember(connection, claim.getId(), uuid);
             } catch (Exception e) {
@@ -75,16 +77,8 @@ public class ClaimManager {
         });
     }
 
-    public ItemStack getClaimItem() {
-        ItemStack itemStack = new ItemStack(Material.GOLDEN_SHOVEL);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.DARK_PURPLE + "Claiming Tool");
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
-    }
-
-    public HashMap<UUID, Boolean> getClaiming() {
-        return claiming;
+    public HashMap<UUID, Rectangle> getTempClaiming() {
+        return tempClaiming;
     }
 
     public List<Claim> getClaims() {

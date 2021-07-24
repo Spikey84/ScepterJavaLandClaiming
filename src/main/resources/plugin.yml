@@ -3,5 +3,7 @@ version: 1.0
 name: ScepterJavaLandClaiming
 api-version: 1.13
 commands:
-  claimtool:
-    usage: /claimtool
+  claim:
+    usage: /claim
+  unclaim:
+    usage: /unclaim

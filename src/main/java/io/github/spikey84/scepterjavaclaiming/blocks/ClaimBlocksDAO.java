@@ -22,7 +22,7 @@ public class ClaimBlocksDAO {
 
             statement = connection.prepareStatement(query);
             statement.execute();
-            ResultSet resultSet = statement.executeQuery(query);
+            ResultSet resultSet = statement.getResultSet();
 
             while (resultSet.next()) {
                 long blocks = resultSet.getLong("blocks");

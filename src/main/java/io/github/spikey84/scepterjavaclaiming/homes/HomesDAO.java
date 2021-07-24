@@ -24,7 +24,7 @@ public class HomesDAO {
 
             statement = connection.prepareStatement(query);
             statement.execute();
-            ResultSet resultSet = statement.executeQuery(query);
+            ResultSet resultSet = statement.getResultSet();
 
             while (resultSet.next()) {
                 Location location = new Location(Bukkit.getWorld(resultSet.getString("world_name")), resultSet.getInt("x"), resultSet.getInt("y"), resultSet.getInt("z"));

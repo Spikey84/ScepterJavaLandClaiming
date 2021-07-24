@@ -1,8 +1,11 @@
 package io.github.spikey84.scepterjavaclaiming;
 
+import io.github.spikey84.scepterjavaclaiming.blacklists.BlackListDAO;
 import io.github.spikey84.scepterjavaclaiming.utils.Rectangle;
+import io.github.spikey84.scepterjavaclaiming.utils.SchedulerUtils;
 import org.bukkit.Location;
 
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -16,8 +19,9 @@ public class Claim {
     private List<UUID> members;
     private HashMap<ClaimSetting, Boolean> claimSettings;
     private int id;
+    private List<UUID> blackList;
 
-    public Claim(Location origin, int xLength, int zLength, UUID owner, List<UUID> members, HashMap<ClaimSetting, Boolean> claimSettings) {
+    public Claim(Location origin, int xLength, int zLength, UUID owner, List<UUID> members, HashMap<ClaimSetting, Boolean> claimSettings, List<UUID> blackList) {
         this.origin = origin;
 
         this.xLength = xLength;
@@ -26,6 +30,7 @@ public class Claim {
         this.members = members;
         this.claimSettings = claimSettings;
         this.id = -1;
+        this.blackList = blackList;
     }
 
     public Location getOrigin() {
@@ -56,16 +61,68 @@ public class Claim {
         return members;
     }
 
+    public List<UUID> getBlackList() {
+        return blackList;
+    }
+
     public HashMap<ClaimSetting, Boolean> getClaimSettings() {
         return claimSettings;
     }
 
     public void addMember(UUID uuid) {
         this.members.add(uuid);
+        SchedulerUtils.runAsync(() -> {
+            try (Connection connection = DatabaseManager.getConnection()) {
+                ClaimDAO.addMember(connection, id, uuid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void removeMember(UUID uuid) {
         this.members.remove(uuid);
+        SchedulerUtils.runAsync(() -> {
+            try (Connection connection = DatabaseManager.getConnection()) {
+                ClaimDAO.removeMember(connection, id, uuid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void addBlacklist(UUID uuid) {
+        this.blackList.add(uuid);
+        SchedulerUtils.runAsync(() -> {
+            try (Connection connection = DatabaseManager.getConnection()) {
+                BlackListDAO.addBlacklistedPlayer(connection, id, uuid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void removeBlackList(UUID uuid) {
+        this.blackList.remove(uuid);
+        SchedulerUtils.runAsync(() -> {
+            try (Connection connection = DatabaseManager.getConnection()) {
+                BlackListDAO.removeBlacklistedPlayer(connection, id, uuid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void setOwner(UUID uuid) {
+        this.owner = uuid;
+        SchedulerUtils.runAsync(() -> {
+            try (Connection connection = DatabaseManager.getConnection()) {
+                ClaimDAO.addClaim(connection, this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
     public boolean overlaps(Claim claim) {
