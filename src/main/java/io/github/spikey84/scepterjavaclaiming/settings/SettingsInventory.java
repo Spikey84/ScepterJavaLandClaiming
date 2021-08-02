@@ -4,6 +4,7 @@ import io.github.spikey84.scepterjavaclaiming.Claim;
 import io.github.spikey84.scepterjavaclaiming.ClaimSetting;
 import io.github.spikey84.scepterjavaclaiming.utils.I;
 import io.github.spikey84.scepterjavaclaiming.utils.inventory.BaseInventory;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,8 +43,8 @@ public class SettingsInventory extends BaseInventory {
             ClaimSetting claimSetting = ClaimSetting.getFromID((byte) x);
             boolean settingValue = claim.getClaimSettings().get(claimSetting);
 
-            ItemStack settingItem = new ItemStack(Material.PAPER);
-            settingItem = I.setName(settingItem, claimSetting.toString());
+            ItemStack settingItem = new ItemStack(claimSetting.getMaterial());
+            settingItem = I.setName(settingItem, ChatColor.BLUE + "" + claimSetting.getName());
 
             addItem(slots[slot], settingItem);
 
