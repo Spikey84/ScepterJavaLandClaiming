@@ -62,7 +62,8 @@ public class BlackListDAO {
             String query = """
                     INSERT INTO claim_blacklist (id, uuid) \
                     VALUES\
-                    (?, ?) ON DUPLICATE KEY UPDATE id=? uuid=?;
+                    (?, ?) ON CONFLICT (id) DO UPDATE \
+                    SET id=? uuid=?;
                     """;
             statement = connection.prepareStatement(query);
 

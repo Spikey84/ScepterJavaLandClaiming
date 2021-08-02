@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.io.ObjectInputFilter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class ConfigManager {
     private FileConfiguration config;
@@ -43,12 +44,13 @@ public class ConfigManager {
         defaultSettings = new HashMap<ClaimSetting, Boolean>();
 
         ConfigurationSection claimSettingsSection = config.getConfigurationSection("ClaimSettings");
-        String[] keys = claimSettingsSection.getValues(false).keySet().toArray(new String[0]);
+        Set<String> keys = claimSettingsSection.getValues(false).keySet();
         for (String settingskey : keys) {
-            if (claimSettingsSection.isConfigurationSection(settingskey)) continue;
+            //if (claimSettingsSection.isConfigurationSection(settingskey)) continue;
 
             ConfigurationSection section = claimSettingsSection.getConfigurationSection(settingskey);
-            defaultSettings.put(ClaimSetting.valueOf(settingskey.toUpperCase()), section.getBoolean("default"));
+            defaultSettings.put(ClaimSetting.valueOf(settingskey.toUpperCase().replace(" ", "_")), section.getBoolean("default"));
+            Bukkit.getLogger().info(ClaimSetting.valueOf(settingskey.toUpperCase().replace(" ", "_")) + "" + section.getBoolean("default"));
         }
 
         timeNumber = config.getInt("Time");

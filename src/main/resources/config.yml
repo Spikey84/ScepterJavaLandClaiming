@@ -73,7 +73,7 @@ ClaimSettings:
     default: true
   public_use_anvil:
     default: false
-  public_use_enchattable:
+  public_use_enchanttable:
     default: true
   public_use_chest:
     default: false

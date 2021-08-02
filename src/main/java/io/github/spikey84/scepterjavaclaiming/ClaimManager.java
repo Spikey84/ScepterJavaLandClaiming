@@ -38,6 +38,7 @@ public class ClaimManager {
         SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
                 ClaimDAO.addClaim(connection, claim);
+                addMember(claim.getOwner(), claim);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -75,6 +76,13 @@ public class ClaimManager {
                 e.printStackTrace();
             }
         });
+    }
+
+    public Claim getClaimByID(int id) {
+        for (Claim claim : claims) {
+            if (claim.getId() == id) return claim;
+        }
+        return null;
     }
 
     public HashMap<UUID, Rectangle> getTempClaiming() {

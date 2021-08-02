@@ -60,6 +60,7 @@ public class ClaimToolListener implements Listener {
                 ChatUtil.message(player, "Click a block to claim.");
             }
         }
+        event.setCancelled(true);
     }
 
 

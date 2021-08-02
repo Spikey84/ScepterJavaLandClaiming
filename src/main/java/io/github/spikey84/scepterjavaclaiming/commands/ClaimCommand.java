@@ -7,6 +7,8 @@ import io.github.spikey84.scepterjavaclaiming.ConfigManager;
 import io.github.spikey84.scepterjavaclaiming.blocks.ClaimBlocksManager;
 import io.github.spikey84.scepterjavaclaiming.homes.Home;
 import io.github.spikey84.scepterjavaclaiming.homes.HomeManager;
+import io.github.spikey84.scepterjavaclaiming.homes.HomesInventory;
+import io.github.spikey84.scepterjavaclaiming.settings.SettingsInventory;
 import io.github.spikey84.scepterjavaclaiming.utils.ChatUtil;
 import io.github.spikey84.scepterjavaclaiming.utils.ItemUtils;
 import io.github.spikey84.scepterjavaclaiming.utils.Rectangle;
@@ -19,6 +21,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,12 +33,14 @@ public class ClaimCommand implements CommandExecutor {
     private ClaimManager claimManager;
     private HomeManager homeManager;
     private ClaimBlocksManager claimBlocksManager;
+    private Plugin plugin;
 
-    public ClaimCommand(ConfigManager configManager, ClaimManager claimManager, ClaimBlocksManager claimBlocksManager, HomeManager homeManager) {
+    public ClaimCommand(ConfigManager configManager, ClaimManager claimManager, ClaimBlocksManager claimBlocksManager, HomeManager homeManager, Plugin plugin) {
         this.configManager = configManager;
         this.claimManager = claimManager;
         this.claimBlocksManager = claimBlocksManager;
         this.homeManager = homeManager;
+        this.plugin = plugin;
     }
 
     @Override
@@ -89,8 +94,20 @@ public class ClaimCommand implements CommandExecutor {
     }
 
     public void settings(Player player, String... args) {
-        // TODO: GUI
-        ChatUtil.message(player, "will open gui");
+        for (Claim claim : claimManager.getClaims()) {
+            if (!Claim.inClaim(claim, player.getLocation())) {
+                ChatUtil.message(player, "You must be a claim to use this command.");
+                continue;
+            }
+
+            if (!claim.getMembers().contains(player.getUniqueId())) {
+                ChatUtil.message(player, "You must be a member of this claim to access settings.");
+                continue;
+            }
+
+            new SettingsInventory(plugin, claim, player).open(player);
+            return;
+        }
     }
 
     public void setHome(Player player, String... args) {
@@ -111,15 +128,7 @@ public class ClaimCommand implements CommandExecutor {
     }
 
     public void home(Player player, String... args) {
-        //TODO: DETRMINE WHICH HOME TO GO TO (MAYBE GUI)
-        for (Claim claim : claimManager.getClaims()) {
-            if (!claim.getOwner().equals(player.getUniqueId())) continue;
-
-            if (!homeManager.hasHome(claim.getId())) continue;
-            homeManager.getHome(claim.getId()).teleportToHome(player);
-            ChatUtil.message(player, "You have been teleported to your claim home.");
-            return;
-        }
+        new HomesInventory(plugin, player, homeManager).open(player);
     }
 
     public void add(Player player, String... args) {
@@ -295,7 +304,6 @@ public class ClaimCommand implements CommandExecutor {
         }
 
         claimManager.addClaim(claim);
-        claimManager.addMember(player.getUniqueId(), claim);
         ChatUtil.message(player, "Area claimed!");
     }
 }

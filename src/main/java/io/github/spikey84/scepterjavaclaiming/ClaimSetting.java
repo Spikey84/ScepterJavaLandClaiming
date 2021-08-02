@@ -14,7 +14,7 @@ public enum ClaimSetting {
     PUBLIC_USE_GATES((byte) 10),
     PUBLIC_USE_CRAFTING_TABLE((byte) 11),
     PUBLIC_USE_PORTALS((byte) 12),
-    PUBLIC_USE_ANVILS((byte) 13),
+    PUBLIC_USE_ANVIL((byte) 13),
     PUBLIC_USE_ENCHANTTABLE((byte) 14),
     PUBLIC_USE_CHEST((byte) 15),
     PUBLIC_USE_ENDERCHEST((byte) 16);

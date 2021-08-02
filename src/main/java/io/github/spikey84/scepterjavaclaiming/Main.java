@@ -22,11 +22,12 @@ public class Main extends JavaPlugin {
     private HomeManager homeManager;
     private ClaimBlocksManager claimBlocksManager;
 
-    private final FileConfiguration config = getConfig();
+    private FileConfiguration config;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        config = getConfig();
 
         this.plugin = this;
         SchedulerUtils.setPlugin(plugin);
@@ -34,10 +35,10 @@ public class Main extends JavaPlugin {
         this.databaseManager = new DatabaseManager(plugin);
         this.claimManager = new ClaimManager(plugin);
         this.configManager = new ConfigManager(getConfig());
-        this.homeManager = new HomeManager();
+        this.homeManager = new HomeManager(claimManager);
         this.claimBlocksManager = new ClaimBlocksManager(configManager);
 
-        getCommand("claim").setExecutor(new ClaimCommand(configManager, claimManager, claimBlocksManager, homeManager));
+        getCommand("claim").setExecutor(new ClaimCommand(configManager, claimManager, claimBlocksManager, homeManager, plugin));
         getCommand("claim").setTabCompleter(new ClaimTab());
         getCommand("unclaim").setExecutor(new UnclaimCommand(claimManager));
 

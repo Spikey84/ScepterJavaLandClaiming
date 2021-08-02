@@ -62,7 +62,8 @@ public class ClaimBlocksDAO {
             String query = """
                     INSERT INTO block_accounts (uuid, blocks) \
                     VALUES\
-                    (?, ?) ON DUPLICATE KEY UPDATE uuid=? blocks=?;
+                    (?, ?) ON CONFLICT (uuid) DO UPDATE \
+                    SET uuid=? blocks=?;
                     """;
             statement = connection.prepareStatement(query);
 

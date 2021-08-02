@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 
@@ -23,6 +24,15 @@ public class ProtectionListener implements Listener {
 
     @EventHandler
     public void blockBreak(BlockBreakEvent event) {
+        for (Claim claim : claimManager.getClaims()) {
+            if (!Claim.inClaim(claim, event.getBlock().getLocation())) continue;
+            if (claim.getMembers().contains(event.getPlayer().getUniqueId())) continue;
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void blockPlace(BlockPlaceEvent event) {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, event.getBlock().getLocation())) continue;
             if (claim.getMembers().contains(event.getPlayer().getUniqueId())) continue;
@@ -46,7 +56,7 @@ public class ProtectionListener implements Listener {
                 return;
             }
             case ANVIL -> {
-                if (!interactionAllowed(ClaimSetting.PUBLIC_USE_ANVILS, event.getClickedBlock(), event.getPlayer()))
+                if (!interactionAllowed(ClaimSetting.PUBLIC_USE_ANVIL, event.getClickedBlock(), event.getPlayer()))
                     event.setCancelled(true);
                 return;
             }
@@ -150,9 +160,9 @@ public class ProtectionListener implements Listener {
             for (Claim claim : claimManager.getClaims()) {
                 if (!Claim.inClaim(claim, block.getLocation())) continue;
                 if (claim.getMembers().contains(player.getUniqueId()) || claim.getClaimSettings().get(setting)) continue;
-                return true;
+                return false;
             }
-        return false;
+        return true;
     }
 
     public boolean interactionAllowed(Block block, Player player) {
@@ -160,9 +170,9 @@ public class ProtectionListener implements Listener {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, block.getLocation())) continue;
             if (claim.getMembers().contains(player.getUniqueId())) continue;
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public boolean interactionAllowed(Location location, Player player) {
@@ -170,26 +180,26 @@ public class ProtectionListener implements Listener {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
             if (claim.getMembers().contains(player.getUniqueId())) continue;
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public boolean interactionAllowed(Location location) {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public boolean interactionAllowed(Location location, ClaimSetting setting) {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
             if (claim.getClaimSettings().get(setting)) continue;
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public boolean interactionAllowed(Location location, ClaimSetting setting, Player player) {
@@ -197,8 +207,8 @@ public class ProtectionListener implements Listener {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
             if (claim.getMembers().contains(player.getUniqueId()) || claim.getClaimSettings().get(setting)) continue;
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }
