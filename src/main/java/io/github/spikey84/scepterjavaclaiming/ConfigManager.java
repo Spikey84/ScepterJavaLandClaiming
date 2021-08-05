@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -83,8 +85,10 @@ public class ConfigManager {
         claimTool = new ItemStack(landClaimMat);
         ItemMeta itemMeta = claimTool.getItemMeta();
         itemMeta.setDisplayName(StringUtils.formatColors(config.getString("LandClaimToolName")));
-        itemMeta.setLore(Lore.createLore(config.getString("LandClaimToolLore")).getContents());
+        itemMeta.setLore(Lore.createLore(StringUtils.formatColors(config.getString("LandClaimToolLore"))).getContents());
         claimTool.setItemMeta(itemMeta);
+        claimTool.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        claimTool.addEnchantment(Enchantment.DURABILITY, 1);
 
         try {
             claimCheckerMat = Material.valueOf(config.getString("LandClaimChecker").toUpperCase());
@@ -96,8 +100,11 @@ public class ConfigManager {
         claimChecker = new ItemStack(claimCheckerMat);
         itemMeta = claimChecker.getItemMeta();
         itemMeta.setDisplayName(StringUtils.formatColors(config.getString("LandClaimCheckerName")));
-        itemMeta.setLore(Lore.createLore(config.getString("LandClaimCheckerLore")).getContents());
+        itemMeta.setLore(Lore.createLore(StringUtils.formatColors(config.getString("LandClaimCheckerLore"))).getContents());
         claimChecker.setItemMeta(itemMeta);
+        claimChecker.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        claimChecker.addEnchantment(Enchantment.DURABILITY, 1);
+
 
         toolCooldown = config.getInt("ToolCooldown");
 

@@ -15,9 +15,9 @@ public enum ClaimSetting {
     PUBLIC_USE_DOORS((byte) 9, Material.OAK_DOOR, "Allow Doors"),
     PUBLIC_USE_GATES((byte) 10, Material.OAK_FENCE_GATE, "Allow Gates"),
     PUBLIC_USE_CRAFTING_TABLE((byte) 11, Material.CRAFTING_TABLE, "Allow Crafting Tables"),
-    PUBLIC_USE_PORTALS((byte) 12, Material.NETHER_PORTAL, "Allow Entering Portals"),
+    PUBLIC_USE_PORTALS((byte) 12, Material.OBSIDIAN, "Allow Entering Portals"),
     PUBLIC_USE_ANVIL((byte) 13, Material.ANVIL, "Allow Anvils"),
-    PUBLIC_USE_ENCHANTTABLE((byte) 14, Material.ANVIL, "Allow Enchantment Tables"),
+    PUBLIC_USE_ENCHANTTABLE((byte) 14, Material.ENCHANTING_TABLE, "Allow Enchantment Tables"),
     PUBLIC_USE_CHEST((byte) 15, Material.CHEST, "Allow Chests"),
     PUBLIC_USE_ENDERCHEST((byte) 16, Material.ENDER_CHEST, "Allow Ender Chests");
 

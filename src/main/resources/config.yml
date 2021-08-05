@@ -8,11 +8,11 @@ UnclaimPercent: 85 # this is how much % of their claim blocks they get back to /
 UnclaimPercentWorking: 150 # In order for it to charge the "taxes" for unclaiming ^ they must have this much or more claim blocks claimed
 
 LandClaimTool: GOLDEN_SHOVEL # this is the item you use to claim land; must be written as text with underscores (example: GOLDEN_SHOVEL)
-LandClaimToolName: "Land Claim Tool"
-LandClaimToolLore: "use this item to claim your land, left click POS1 and right click POS2. Than type /claim"
+LandClaimToolName: "&eLand Claim Tool"
+LandClaimToolLore: "&fuse this item to claim your land, left click POS1 and right click POS2. Than type /claim"
 LandClaimChecker: GOLDEN_SHOVEL # this is the item you tap to see who owns a claim; must be written as text with underscores (example: GOLDEN_SHOVEL)
 LandClaimCheckerName: "&bLand Claim Checker"
-LandClaimCheckerLore: "use this item to see owns, or claimed land"
+LandClaimCheckerLore: "&fuse this item to see owns, or claimed land"
 ToolCooldown: 24 # Amount of hours before someone can /claim tools and get the tools again
 
 ClaimDisabledWorlds: ["ResouceWorld", "world_nether", "world_the_end"]
@@ -22,27 +22,29 @@ ClaimHelp: # showed when running /claim help - ill color code this later
   - "/claim help - this menu"
   - "/claim tools - get given the claim tools"
   - "/claim settings - claim settings"
-  - "/claim sethome - set claim home (must be claim owner or user)" # Permission: scepter.default
-  - "/claim home - teleport to claim home (must be claim owner or user)" # Permission: scepter.default
+  - "/sethome - set player home" # Permission: scepter.default
+  - "/home - opens a gui containing a players homes" # Permission: scepter.default
   - "/claim add <user> - adds a user as a member of your claim (must be claim owner)" # Permission: scepter.default
   - "/claim remove <user> - remove a user as a member of your claim (must be claim owner)" # Permission: scepter.default
   - "/claim blacklist <user> - adds a user to your claim blacklist, they cannot enter your claim (must be claim owner)" # Permission: scepter.default
   - "/claim unblacklist <user> - removes a user from your claim blacklist (must be claim owner)" # Permission: scepter.default
   - "/claim transfer <user> - transfers claim ownership" # Permission: scepter.default
+  - "/claim blocks - displays a players claim blocks" # Permission: scepter.default
+  - "/claim edit - Allows you to modify an existing claim" # Permission: scepter.default
   - "/claim - claim the land after selecting POS1 & POS2" # Permission: scepter.default
-  - "/unclaim - unclaim your land, taxes will be charged if you own more than 150 blocks" # Permission: scepter.default
+  - "/unclaim - unclaim your land, taxes will be charged if you own more than 150 blocks" # Permission:
   - "/trust <user> - trust a user in your claim" # Permission: scepter.default
   - "/untrust <user> - untrust a user in your claim" # Permission: scepter.default
   - "/buyclaimblocks <amount> - buy claim blocks $250 each" # Permission: scepter.default
   - "/sellclaimblocks <amount> - sell claim blocks $50 each" # Permission: scepter.default
-  - "/adminclaim <name>- admin claim land (usually for spawn claiming)" # Permission: scepter.adminclaim
-  - "/adminclaimsettings - admin claim settings" # Permission: scepter.adminclaim
-  - "/adminunclaim - unclaim any land" # Permission: scepter.adminclaim
+  - "/adminclaim claim <name>- admin claim land (usually for spawn claiming)" # Permission: scepter.adminclaim
+  - "/adminclaim settings - admin claim settings" # Permission: scepter.adminclaim
+  - "/adminclaim unclaim - unclaim any land" # Permission: scepter.adminclaim
 
 # Staff Permissions
-# Blacklist Bypass: scepter.blacklistbypass (so they cant try to black list staff from entering their claim)
+  ## Blacklist Bypass: scepter.blacklistbypass (so they cant try to black list staff from entering their claim)
 # Interact with anything: scepter.adminbypass
-# Open any users claim settings: scepter.adminclaim (/claimsettings <user>)
+# Open the claim settings for the claim you are currently standing in: scepter.adminclaim (/claimsettings)
 
 ClaimSettings:
   pvp:

@@ -1,6 +1,8 @@
 package io.github.spikey84.scepterjavaclaiming.utils.inventory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.github.spikey84.scepterjavaclaiming.utils.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,9 +21,9 @@ public class BaseInventory implements InventoryHolder, Listener {
     private Inventory inventory;
     private HashMap<Integer, Runnable> clickableItems;
 
-    public BaseInventory(int rows, Plugin plugin) {
-        this.inventory = Bukkit.createInventory(this, rows*9);
-        this.clickableItems = Maps.newHashMap();
+    public BaseInventory(int rows, Plugin plugin, String title) {
+        clickableItems = Maps.newHashMap();
+        this.inventory = Bukkit.createInventory(this, rows*9, StringUtils.formatColors(title));
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -37,7 +39,7 @@ public class BaseInventory implements InventoryHolder, Listener {
 
    public void fillInventory(ItemStack item) {
         for (int x = 0; x < inventory.getSize(); x++) {
-            clickableItems.remove(x);
+            if (clickableItems.containsKey(x)) clickableItems.remove(x);
             inventory.setItem(x, item);
         }
    }
@@ -54,6 +56,9 @@ public class BaseInventory implements InventoryHolder, Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
+
+        if (event.getClickedInventory() == null) return;
+
         if (!event.getClickedInventory().equals(inventory)) return;
 
         event.setCancelled(true);

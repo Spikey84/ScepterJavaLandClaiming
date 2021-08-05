@@ -1,50 +1,57 @@
-package io.github.spikey84.scepterjavaclaiming.blocks;
+package io.github.spikey84.scepterjavaclaiming.cooldowns;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.github.spikey84.scepterjavaclaiming.ConfigManager;
+import io.github.spikey84.scepterjavaclaiming.homes.Home;
 import io.github.spikey84.scepterjavaclaiming.utils.UUIDUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class ClaimBlocksDAO {
-    public static HashMap<UUID, Long> getBlocks(Connection connection) {
+public class CooldownDAO {
+
+    public static HashMap<UUID, HashMap<Byte, Timestamp>> getCooldowns(Connection connection) {
         PreparedStatement statement = null;
-        HashMap<UUID, Long> accounts = Maps.newHashMap();
+        HashMap<UUID, HashMap<Byte, Timestamp>> cooldowns = Maps.newHashMap();
 
         try {
             Class.forName("org.sqlite.JDBC");
-            String query = "SELECT * FROM block_accounts;";
+            String query = "SELECT * FROM cooldowns;";
 
             statement = connection.prepareStatement(query);
             statement.execute();
             ResultSet resultSet = statement.getResultSet();
 
             while (resultSet.next()) {
-                long blocks = resultSet.getLong("blocks");
-                accounts.put(UUIDUtils.build(resultSet.getString("uuid")), blocks);
+                byte id = (byte) resultSet.getInt("id");
+                UUID uuid = UUIDUtils.build(resultSet.getString("uuid"));
+                Timestamp time = resultSet.getTimestamp("lastused");
+                cooldowns.putIfAbsent(uuid, Maps.newHashMap());
+                cooldowns.get(uuid).put(id, time);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return accounts;
+        return cooldowns;
     }
 
-    public static void removeBlocks(Connection connection, int id, UUID uuid) {
+    public static void removeCooldown(Connection connection, int id, UUID uuid) {
         PreparedStatement statement = null;
 
         try {
             Class.forName("org.sqlite.JDBC");
             String query = """
-                    DELETE FROM block_accounts WHERE uuid=?;
+                    DELETE FROM cooldowns WHERE id=? AND uuid=?;
                     """;
             statement = connection.prepareStatement(query);
-            statement.setString(1, UUIDUtils.strip(uuid));
+            statement.setInt(1, id);
+            statement.setString(2, UUIDUtils.strip(uuid));
             statement.execute();
 
             statement.close();
@@ -54,26 +61,28 @@ public class ClaimBlocksDAO {
         }
     }
 
-    public static void setBlocks(Connection connection, UUID uuid, long blocks) {
+    public static void updateCooldown(Connection connection, UUID uuid, byte id, Timestamp timestamp) {
         PreparedStatement statement = null;
 
         try {
+            removeCooldown(connection, id, uuid);
+
             Class.forName("org.sqlite.JDBC");
             String query = """
-                    INSERT INTO block_accounts (uuid, blocks) \
+                    INSERT INTO cooldowns (uuid, id, lastused) \
                     VALUES\
-                    (?, ?) ON CONFLICT (uuid) DO UPDATE \
-                    SET uuid=?, blocks=?;
+                    (?, ?, ?);
                     """;
             statement = connection.prepareStatement(query);
 
             statement.setString(1, UUIDUtils.strip(uuid));
-            statement.setLong(2, blocks);
-            statement.setString(3, UUIDUtils.strip(uuid));
-            statement.setLong(4, blocks);
+            statement.setInt(2, id);
+            statement.setTimestamp(3, timestamp);
 
             statement.execute();
             statement.close();
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }

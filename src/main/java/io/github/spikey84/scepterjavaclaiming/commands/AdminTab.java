@@ -9,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-public class ClaimTab implements TabCompleter {
-    String[] commands = new String[]{"help", "tools", "settings", "add", "remove", "blacklist", "unblacklist", "transfer", "claim", "blocks", "edit"};
+public class AdminTab implements TabCompleter {
+    String[] commands = new String[]{"claim", "unclaim", "settings"};
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {

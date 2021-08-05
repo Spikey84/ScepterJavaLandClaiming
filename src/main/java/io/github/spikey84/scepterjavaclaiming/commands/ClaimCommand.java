@@ -5,28 +5,29 @@ import io.github.spikey84.scepterjavaclaiming.Claim;
 import io.github.spikey84.scepterjavaclaiming.ClaimManager;
 import io.github.spikey84.scepterjavaclaiming.ConfigManager;
 import io.github.spikey84.scepterjavaclaiming.blocks.ClaimBlocksManager;
-import io.github.spikey84.scepterjavaclaiming.homes.Home;
+import io.github.spikey84.scepterjavaclaiming.cooldowns.CooldownManager;
+import io.github.spikey84.scepterjavaclaiming.cooldowns.CooldownType;
 import io.github.spikey84.scepterjavaclaiming.homes.HomeManager;
-import io.github.spikey84.scepterjavaclaiming.homes.HomesInventory;
 import io.github.spikey84.scepterjavaclaiming.settings.SettingsInventory;
 import io.github.spikey84.scepterjavaclaiming.utils.ChatUtil;
 import io.github.spikey84.scepterjavaclaiming.utils.ItemUtils;
 import io.github.spikey84.scepterjavaclaiming.utils.Rectangle;
-import jdk.jshell.spi.ExecutionControl;
+import io.github.spikey84.scepterjavaclaiming.utils.StringUtils;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class ClaimCommand implements CommandExecutor {
     private ConfigManager configManager;
@@ -34,13 +35,15 @@ public class ClaimCommand implements CommandExecutor {
     private HomeManager homeManager;
     private ClaimBlocksManager claimBlocksManager;
     private Plugin plugin;
+    private CooldownManager cooldownManager;
 
-    public ClaimCommand(ConfigManager configManager, ClaimManager claimManager, ClaimBlocksManager claimBlocksManager, HomeManager homeManager, Plugin plugin) {
+    public ClaimCommand(ConfigManager configManager, ClaimManager claimManager, ClaimBlocksManager claimBlocksManager, HomeManager homeManager, Plugin plugin, CooldownManager cooldownManager) {
         this.configManager = configManager;
         this.claimManager = claimManager;
         this.claimBlocksManager = claimBlocksManager;
         this.homeManager = homeManager;
         this.plugin = plugin;
+        this.cooldownManager = cooldownManager;
     }
 
     @Override
@@ -66,29 +69,100 @@ public class ClaimCommand implements CommandExecutor {
             case "help": help(player, args); break;
             case "tools": tools(player, args); break;
             case "settings": settings(player, args); break;
-            case "sethome": setHome(player, args); break;
-            case "home": home(player, args); break;
             case "add": add(player, args); break;
             case "remove": remove(player, args); break;
             case "blacklist": blacklist(player, args); break;
             case "unblacklist": unblacklist(player, args); break;
             case "transfer": transfer(player, args); break;
             case "claim": claim(player, args); break;
+            case "blocks": blocks(player, args); break;
+            case "edit": edit(player, args); break;
             default: claim(player, args); break;
         }
 
         return true;
     }
 
+    public void edit(Player player, String... args) {
+
+        if (!cooldownManager.isExpired(player.getUniqueId(), CooldownType.EDIT.getId(), configManager.getToolCooldown() * 60)) {
+            ChatUtil.message(player, "You cannot run this command for another %s minute(s).".formatted((int) ((cooldownManager.getRemainingMinutes(player.getUniqueId(), CooldownType.TOOLS.getId(), configManager.getToolCooldown() * 60)))));
+            return;
+        }
+
+        if (!claimManager.getTempClaiming().get(player.getUniqueId()).notNullLocations()) {
+            ChatUtil.message(player, "Set a first and second location in order to claim.");
+            return;
+        }
+
+        Rectangle rectangle = claimManager.getTempClaiming().get(player.getUniqueId());
+
+        Claim claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(), Lists.newArrayList(),configManager.getDefaultSettings(), Lists.newArrayList(), rectangle.getLeftLocation().getWorld().toString());
+
+        Claim claimToOverride = null;
+
+        for (Claim otherClaim : claimManager.getClaims()) {
+            Location close = otherClaim.getOrigin();
+            Location far = otherClaim.getOrigin();
+            far.setX(far.getX() + otherClaim.getXLength());
+            far.setZ(far.getZ() + otherClaim.getZLength());
+            Location farX = otherClaim.getOrigin();
+            farX.setX(far.getX() + otherClaim.getXLength());
+            Location farZ = otherClaim.getOrigin();
+            farX.setZ(far.getZ() + otherClaim.getZLength());
+            if (!rectangle.getLocation1().equals(close) || !rectangle.getLocation1().equals(far) || !rectangle.getLocation1().equals(farX) || !rectangle.getLocation1().equals(farZ) || !rectangle.getLocation2().equals(close) || !rectangle.getLocation2().equals(far) || !rectangle.getLocation2().equals(farX) || !rectangle.getLocation2().equals(farZ)) {
+                continue;
+            }
+            claimToOverride = otherClaim;
+
+        }
+
+        if (claimToOverride == null) {
+            ChatUtil.message(player, "Please select the corner of a claim to edit.");
+            return;
+        }
+
+        for (Claim otherClaim : claimManager.getClaims()) {
+            if (claim.overlaps(otherClaim) && !otherClaim.equals(claimToOverride)) {
+                ChatUtil.message(player, "This claim overlaps an existing claim.");
+                return;
+            }
+        }
+
+        if (rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength()) > claimBlocksManager.getBlockCount(player.getUniqueId())) {
+            ChatUtil.message(player, "You do not have enough claim blocks. (%s required)".formatted(rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength())));
+            return;
+        }
+
+        if (configManager.getDisabledWorlds().contains(claim.getOrigin().getWorld().getName())) {
+            ChatUtil.message(player, "Claiming is not allowed in this world.");
+            return;
+        }
+
+        claimManager.delClaim(claimToOverride);
+        claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(),claimToOverride.getMembers(), claimToOverride.getClaimSettings(), claimToOverride.getBlackList(), claim.getWorldName());
+        claimManager.addClaim(claim);
+        cooldownManager.updateCooldown(player.getUniqueId(), CooldownType.EDIT.getId(), Timestamp.from(Instant.now()));
+        claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) + rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength()));
+        ChatUtil.message(player, "Area claimed!");
+    }
+
+
     public void help(Player player, String... args) {
         for (String line : configManager.getHelp()) {
-            player.sendMessage(line);
+            player.sendMessage(StringUtils.formatColors(line));
         }
     }
 
     public void tools(Player player, String... args) {
+
+        if (!cooldownManager.isExpired(player.getUniqueId(), CooldownType.TOOLS.getId(), configManager.getToolCooldown() * 60)) {
+            ChatUtil.message(player, "You cannot run this command for another %s hour(s).".formatted((int) ((cooldownManager.getRemainingMinutes(player.getUniqueId(), CooldownType.TOOLS.getId(), configManager.getToolCooldown() * 60))/60)));
+            return;
+        }
+
         ChatUtil.message(player, "Claim tools given.");
-        // TODO: COOLDOWN
+        cooldownManager.updateCooldown(player.getUniqueId(), CooldownType.TOOLS.getId(), Timestamp.from(Instant.now()));
         ItemUtils.giveItem(player, configManager.getClaimTool().clone());
         ItemUtils.giveItem(player, configManager.getClaimChecker().clone());
     }
@@ -96,7 +170,6 @@ public class ClaimCommand implements CommandExecutor {
     public void settings(Player player, String... args) {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, player.getLocation())) {
-                ChatUtil.message(player, "You must be a claim to use this command.");
                 continue;
             }
 
@@ -105,30 +178,10 @@ public class ClaimCommand implements CommandExecutor {
                 continue;
             }
 
-            new SettingsInventory(plugin, claim, player).open(player);
+            new SettingsInventory(plugin, claimManager, claim, player).open(player);
             return;
         }
-    }
-
-    public void setHome(Player player, String... args) {
-        for (Claim claim : claimManager.getClaims()) {
-            if (!Claim.inClaim(claim, player.getLocation())) {
-                continue;
-            }
-            if (!claim.getMembers().contains(player.getUniqueId())) {
-                ChatUtil.message(player, "Home must be set in a claim that you are a member of.");
-                continue;
-            }
-
-            homeManager.addHome(new Home(player.getLocation(), claim.getId()));
-            ChatUtil.message(player, "Claim home has been set.");
-            return;
-        }
-        ChatUtil.message(player, "Home must be set in a claim that you are a member of.");
-    }
-
-    public void home(Player player, String... args) {
-        new HomesInventory(plugin, player, homeManager).open(player);
+        ChatUtil.message(player, "You must be a claim to use this command.");
     }
 
     public void add(Player player, String... args) {
@@ -270,6 +323,7 @@ public class ClaimCommand implements CommandExecutor {
             }
 
             claim.setOwner(target.getUniqueId());
+            claim.addMember(target.getUniqueId());
             ChatUtil.message(player, String.format("%s has been given ownership of this claim.", args[1]));
             return;
         }
@@ -284,14 +338,14 @@ public class ClaimCommand implements CommandExecutor {
 
         Rectangle rectangle = claimManager.getTempClaiming().get(player.getUniqueId());
 
-        Claim claim = new Claim(rectangle.getLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(), Lists.newArrayList(),configManager.getDefaultSettings(), Lists.newArrayList());
+        Claim claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(), Lists.newArrayList(),configManager.getDefaultSettings(), Lists.newArrayList(), rectangle.getLeftLocation().getWorld().toString());
 
-//        for (Claim otherClaim : claimManager.getClaims()) {
-//            if (claim.overlaps(otherClaim)) {
-//                ChatUtil.message(player, "This claim overlaps an existing claim.");
-//                return;
-//            }
-//        }
+        for (Claim otherClaim : claimManager.getClaims()) {
+            if (claim.overlaps(otherClaim)) {
+                ChatUtil.message(player, "This claim overlaps an existing claim.");
+                return;
+            }
+        }
 
         if (rectangle.getSize() > claimBlocksManager.getBlockCount(player.getUniqueId())) {
             ChatUtil.message(player, "You do not have enough claim blocks. (%s required)".formatted(rectangle.getSize()));
@@ -304,6 +358,11 @@ public class ClaimCommand implements CommandExecutor {
         }
 
         claimManager.addClaim(claim);
+        claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) - rectangle.getSize());
         ChatUtil.message(player, "Area claimed!");
+    }
+
+    public void blocks(Player player, String... args) {
+        ChatUtil.message(player, "You have %s claim blocks.".formatted(ChatColor.YELLOW + "" + claimBlocksManager.getBlockCount(player.getUniqueId()) + "" + ChatColor.WHITE));
     }
 }

@@ -1,6 +1,7 @@
 package io.github.spikey84.scepterjavaclaiming.listeners;
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import com.google.common.collect.Lists;
 import io.github.spikey84.scepterjavaclaiming.Claim;
 import io.github.spikey84.scepterjavaclaiming.ClaimManager;
 import io.github.spikey84.scepterjavaclaiming.ClaimSetting;
@@ -159,7 +160,8 @@ public class ProtectionListener implements Listener {
         if (player.hasPermission("scepter.adminbypass")) return true;
             for (Claim claim : claimManager.getClaims()) {
                 if (!Claim.inClaim(claim, block.getLocation())) continue;
-                if (claim.getMembers().contains(player.getUniqueId()) || claim.getClaimSettings().get(setting)) continue;
+                claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
+                if (claimManager.getTrustedMembers().get(claim).contains(player.getUniqueId()) || claim.getMembers().contains(player.getUniqueId()) || claim.getClaimSettings().get(setting)) continue;
                 return false;
             }
         return true;
@@ -169,7 +171,8 @@ public class ProtectionListener implements Listener {
         if (player.hasPermission("scepter.adminbypass")) return true;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, block.getLocation())) continue;
-            if (claim.getMembers().contains(player.getUniqueId())) continue;
+            claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
+            if (claimManager.getTrustedMembers().get(claim).contains(player.getUniqueId()) || claim.getMembers().contains(player.getUniqueId())) continue;
             return false;
         }
         return true;
@@ -179,7 +182,8 @@ public class ProtectionListener implements Listener {
         if (player.hasPermission("scepter.adminbypass")) return true;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
-            if (claim.getMembers().contains(player.getUniqueId())) continue;
+            claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
+            if (claimManager.getTrustedMembers().get(claim).contains(player.getUniqueId()) || claim.getMembers().contains(player.getUniqueId())) continue;
             return false;
         }
         return true;
@@ -206,7 +210,8 @@ public class ProtectionListener implements Listener {
         if (player.hasPermission("scepter.adminbypass")) return true;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
-            if (claim.getMembers().contains(player.getUniqueId()) || claim.getClaimSettings().get(setting)) continue;
+            claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
+            if (claimManager.getTrustedMembers().get(claim).contains(player.getUniqueId()) || claim.getMembers().contains(player.getUniqueId()) || claim.getClaimSettings().get(setting)) continue;
             return false;
         }
         return true;

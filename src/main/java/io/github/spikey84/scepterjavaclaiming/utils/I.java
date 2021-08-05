@@ -14,8 +14,16 @@ public class I {
         return i;
     }
 
+    public static ItemStack getVisibleFiller() {
+        ItemStack i = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta itemMeta = i.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.RESET + "");
+        i.setItemMeta(itemMeta);
+        return i;
+    }
+
     public static ItemStack getEnabled() {
-        ItemStack i = new ItemStack(Material.GREEN_CONCRETE);
+        ItemStack i = new ItemStack(Material.LIME_DYE);
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GREEN + "Enabled");
         i.setItemMeta(itemMeta);
@@ -23,7 +31,7 @@ public class I {
     }
 
     public static ItemStack getDisabled() {
-        ItemStack i = new ItemStack(Material.RED_CONCRETE);
+        ItemStack i = new ItemStack(Material.RED_DYE);
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.RED + "Disabled");
         i.setItemMeta(itemMeta);
@@ -42,6 +50,14 @@ public class I {
         ItemStack i = new ItemStack(Material.ARROW);
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.RED + "Next");
+        i.setItemMeta(itemMeta);
+        return i;
+    }
+
+    public static ItemStack getEmpty() {
+        ItemStack i = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta itemMeta = i.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.RED + "Empty Slot");
         i.setItemMeta(itemMeta);
         return i;
     }

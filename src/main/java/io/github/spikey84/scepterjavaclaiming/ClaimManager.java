@@ -20,9 +20,13 @@ public class ClaimManager {
     private List<Claim> claims;
     private Plugin plugin;
     private HashMap<UUID, Rectangle> tempClaiming;
+    private HashMap<Claim, List<UUID>> trustedMembers;
 
     public ClaimManager(Plugin plugin) {
         this.plugin = plugin;
+
+        this.trustedMembers = Maps.newHashMap();
+
         claims = Lists.newArrayList();
         tempClaiming = Maps.newHashMap();
         try (Connection connection = DatabaseManager.getConnection()) {
@@ -34,6 +38,11 @@ public class ClaimManager {
 
 
     public void addClaim(Claim claim) {
+        List<Claim> toRM = Lists.newArrayList();
+        for (Claim c : claims) {
+            if (c.getId() == claim.getId()) toRM.add(c);
+        }
+        claims.removeAll(toRM);
         claims.add(claim);
         SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
@@ -83,6 +92,10 @@ public class ClaimManager {
             if (claim.getId() == id) return claim;
         }
         return null;
+    }
+
+    public HashMap<Claim, List<UUID>> getTrustedMembers() {
+        return trustedMembers;
     }
 
     public HashMap<UUID, Rectangle> getTempClaiming() {

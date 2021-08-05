@@ -4,11 +4,13 @@ import com.google.common.collect.Lists;
 import io.github.spikey84.scepterjavaclaiming.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.checkerframework.checker.units.qual.UnknownUnits;
 
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +22,7 @@ public class HomesDAO {
 
         try {
             Class.forName("org.sqlite.JDBC");
-            String query = "SELECT * FROM claim_homes;";
+            String query = "SELECT * FROM homes;";
 
             statement = connection.prepareStatement(query);
             statement.execute();
@@ -28,8 +30,8 @@ public class HomesDAO {
 
             while (resultSet.next()) {
                 Location location = new Location(Bukkit.getWorld(resultSet.getString("world_name")), resultSet.getInt("x"), resultSet.getInt("y"), resultSet.getInt("z"));
-                int id = resultSet.getInt("claim_id");
-                homes.add(new Home(location, id));
+                UUID uuid = UUIDUtils.build(resultSet.getString("uuid"));
+                homes.add(new Home(location, uuid));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,7 +46,7 @@ public class HomesDAO {
         try {
             Class.forName("org.sqlite.JDBC");
             String query = """
-                    DELETE FROM claim_homes WHERE claim_id=?;
+                    DELETE FROM homes WHERE id=?;
                     """;
             statement = connection.prepareStatement(query);
             statement.setInt(1, id);
@@ -63,24 +65,31 @@ public class HomesDAO {
         try {
             Class.forName("org.sqlite.JDBC");
             String query = """
-                    INSERT INTO claim_homes (claim_id, x, y, z, world_name) \
+                    INSERT INTO homes (uuid, x, y, z, world_name) \
                     VALUES\
-                    (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE x=? y=? z=? world_name=?;
+                    (?, ?, ?, ?, ?);
                     """;
             statement = connection.prepareStatement(query);
 
-            statement.setInt(1, home.getClaimId());
+            statement.setString(1, UUIDUtils.strip(home.getUuid()));
             statement.setInt(2, home.getLocation().getBlockX());
             statement.setInt(3, home.getLocation().getBlockY());
             statement.setInt(4, home.getLocation().getBlockZ());
             statement.setString(5, home.getLocation().getWorld().getName());
-            statement.setInt(6, home.getLocation().getBlockX());
-            statement.setInt(7, home.getLocation().getBlockY());
-            statement.setInt(8, home.getLocation().getBlockZ());
-            statement.setString(9, home.getLocation().getWorld().getName());
 
             statement.execute();
             statement.close();
+
+            if (home.getId() == -1) {
+                String s = "SELECT id from homes where id = (select max(id) from homes);";
+                Statement statement1 = connection.createStatement();
+                statement1.execute(s);
+
+
+                ResultSet resultSet = statement1.getResultSet();
+                resultSet.next();
+                home.setId(resultSet.getInt(1));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

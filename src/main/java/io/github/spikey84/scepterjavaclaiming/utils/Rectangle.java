@@ -51,4 +51,32 @@ public class Rectangle {
     public int getSize() {
         return (getRightLocation().getBlockX() - getLeftLocation().getBlockX()) * (getTopLocation().getBlockZ() - getBottomLocation().getBlockZ());
     }
+
+    public Location getLocation1() {
+        return location1;
+    }
+
+    public Location getLocation2() {
+        return location2;
+    }
+
+    public Location getBottomLeftLocation() {
+        if (getBottomLocation().equals(getLeftLocation()))
+            return getLeftLocation();
+        else {
+            Location tmpLoc = getLeftLocation().clone();
+            tmpLoc.setZ(tmpLoc.getZ() - getZLength());
+            return tmpLoc;
+        }
+    }
+
+    public Location getTopRightLocation() {
+        if (getTopLocation().equals(getRightLocation()))
+            return getRightLocation();
+        else {
+            Location tmpLoc = getLeftLocation().clone();
+            tmpLoc.setZ(tmpLoc.getZ() + getZLength());
+            return tmpLoc;
+        }
+    }
 }

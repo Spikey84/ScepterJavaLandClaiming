@@ -26,6 +26,20 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+
+        <repository>
+            <id>project.local</id>
+            <name>project</name>
+            <url>file:///${project.basedir}/repo</url>
+        </repository>
+
+        <repository>
+            <id>example-repo</id>
+            <name>Example Repository</name>
+            <url>file://home/main/.m2/repository</url>
+        </repository>
+
+
     </repositories>
 
     <dependencies>
@@ -48,5 +62,12 @@
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>me.wasteofoxygen</groupId>
+            <artifactId>ScepterJavaEconomy</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>

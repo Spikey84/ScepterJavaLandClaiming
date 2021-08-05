@@ -9,12 +9,15 @@ import io.github.spikey84.scepterjavaclaiming.utils.ChatUtil;
 import io.github.spikey84.scepterjavaclaiming.utils.Rectangle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.sqlite.util.StringUtils;
 
@@ -25,8 +28,6 @@ public class ClaimToolListener implements Listener {
     private ClaimManager claimManager;
     private ConfigManager configManager;
     private Plugin plugin;
-    private long time = 0;
-    private Map<UUID, Long> times;
 
     public ClaimToolListener(ClaimManager claimManager, Plugin plugin, ConfigManager configManager) {
     this.claimManager = claimManager;
@@ -61,6 +62,16 @@ public class ClaimToolListener implements Listener {
             }
         }
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void anvilClaimTool(PrepareAnvilEvent event) {
+        for (ItemStack itemStack : event.getInventory()) {
+            if (itemStack.isSimilar(configManager.getClaimTool()) || itemStack.isSimilar(configManager.getClaimChecker())) {
+                event.setResult(new ItemStack(Material.AIR));
+                return;
+            }
+        }
     }
 
 

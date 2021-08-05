@@ -20,8 +20,9 @@ public class Claim {
     private HashMap<ClaimSetting, Boolean> claimSettings;
     private int id;
     private List<UUID> blackList;
+    private String worldName;
 
-    public Claim(Location origin, int xLength, int zLength, UUID owner, List<UUID> members, HashMap<ClaimSetting, Boolean> claimSettings, List<UUID> blackList) {
+    public Claim(Location origin, int xLength, int zLength, UUID owner, List<UUID> members, HashMap<ClaimSetting, Boolean> claimSettings, List<UUID> blackList, String worldName) {
         this.origin = origin;
 
         this.xLength = xLength;
@@ -31,6 +32,7 @@ public class Claim {
         this.claimSettings = claimSettings;
         this.id = -1;
         this.blackList = blackList;
+        this.worldName = worldName;
     }
 
     public Location getOrigin() {
@@ -144,7 +146,7 @@ public class Claim {
         if (rectangle1.getBottomLocation().getBlockZ() <= rectangle2.getBottomLocation().getBlockZ() && rectangle1.getTopLocation().getBlockZ() >= rectangle2.getBottomLocation().getBlockZ() && xOverlap) return true;
         if (rectangle2.getTopLocation().getBlockZ() >= rectangle1.getBottomLocation().getBlockZ() && rectangle1.getTopLocation().getBlockZ() >= rectangle2.getBottomLocation().getBlockZ() && xOverlap) return true;
 
-        return true;
+        return false;
     }
 
     public static boolean inClaim(Claim claim, Location location) {
@@ -157,6 +159,15 @@ public class Claim {
         return false;
     }
 
+    public String getWorldName() {
+        return worldName;
+    }
 
+    public void setWorldName(String worldName) {
+        this.worldName = worldName;
+    }
 
+    public void setOrigin(Location origin) {
+        this.origin = origin;
+    }
 }

@@ -7,6 +7,7 @@ import io.github.spikey84.scepterjavaclaiming.settings.SettingsInventory;
 import io.github.spikey84.scepterjavaclaiming.utils.ChatUtil;
 import io.github.spikey84.scepterjavaclaiming.utils.I;
 import io.github.spikey84.scepterjavaclaiming.utils.Lore;
+import io.github.spikey84.scepterjavaclaiming.utils.StringUtils;
 import io.github.spikey84.scepterjavaclaiming.utils.inventory.BaseInventory;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,32 +29,35 @@ public class HomesInventory extends BaseInventory {
     }
 
     private HomesInventory(Plugin plugin, Player player, HomeManager homeManager, int page) {
-        super(6, plugin);
+        super(6, plugin, "&9&lHomes");
 
         this.plugin = plugin;
         this.page = page;
         this.player = player;
 
-        List<Home> homes = Lists.newArrayList();
-
-        homes = homeManager.getHomes(player.getUniqueId());
-
         fillInventory(I.getFiller());
+
+        for (int x = 0; x < slots.length; x++) {
+            addItem(slots[x], I.getEmpty());
+        }
+
+        List<Home> homes = homeManager.getHomes(player.getUniqueId());
+        if (homes.size() < 1) return;
 
         int slot = 0;
         for (int x = page * slots.length; x < slots.length * (page + 1); x++) {
             if (homes == null) {
                 continue;
             }
-            if (x > homes.size()) {
+            if (homes.size() <= x) {
                 continue;
             }
 
             Home home = homes.get(x);
 
-            ItemStack item = new ItemStack(Material.PAPER);
-            item = I.setName(item, ChatColor.BLUE + String.format("Home: %s", home.getClaimId()));
-            item = I.setLore(item, Lore.createLore(ChatColor.WHITE + home.getLocation().toString(), ChatColor.GREEN + "[Click to Travel]"));
+            ItemStack item = new ItemStack(Material.BLUE_DYE);
+            item = I.setName(item, ChatColor.BLUE + "Home");
+            item = I.setLore(item, Lore.createLore(ChatColor.WHITE + String.format("x: %s, y: %s, z: %s, world: %s", home.getLocation().getBlockX(), home.getLocation().getBlockY(), home.getLocation().getBlockZ(), home.getLocation().getWorld().getName()), ChatColor.GREEN + "[Click to Travel]"));
 
             addItem(slots[slot], item, () -> {
                 player.closeInventory();
@@ -65,12 +69,10 @@ public class HomesInventory extends BaseInventory {
         }
 
         if (page != 0) addItem(28, I.getBack(), () -> {
-            player.closeInventory();
             new HomesInventory(plugin, player, homeManager, page-1).open(player);
         });
 
         if (page * slots.length > homes.size()) addItem(34, I.getNext(), () -> {
-            player.closeInventory();
             new HomesInventory(plugin, player, homeManager, page+1).open(player);
         });
     }

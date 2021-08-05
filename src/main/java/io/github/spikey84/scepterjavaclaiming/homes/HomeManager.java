@@ -8,24 +8,19 @@ import io.github.spikey84.scepterjavaclaiming.utils.SchedulerUtils;
 
 import java.security.spec.ECField;
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class HomeManager {
-    private HashMap<Integer, Home> homes;
+    private ArrayList<Home> homes;
     private ClaimManager claimManager;
 
     public HomeManager(ClaimManager claimManager) {
-        this.homes = Maps.newHashMap();
+        this.homes = Lists.newArrayList();
         this.claimManager = claimManager;
 
         SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
-                for (Home home : HomesDAO.getHomes(connection)) {
-                    this.homes.put(home.getClaimId(), home);
-                }
+                homes.addAll(HomesDAO.getHomes(connection));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -33,7 +28,7 @@ public class HomeManager {
     }
 
     public void addHome(Home home) {
-        homes.put(home.getClaimId(), home);
+        homes.add(home);
         SchedulerUtils.runAsync(() -> {
             try (Connection connection = DatabaseManager.getConnection()) {
                 HomesDAO.addHome(connection, home);
@@ -47,14 +42,17 @@ public class HomeManager {
         return homes.get(id);
     }
 
-    public boolean hasHome(int id) {
-        return homes.containsKey(id);
+    public boolean hasHome(UUID uuid) {
+        for (Home home : homes) {
+            if (home.getUuid().equals(uuid)) return true;
+        }
+        return false;
     }
 
     public List<Home> getHomes(UUID uuid) {
         List<Home> list = Lists.newArrayList();
-        for (Map.Entry<Integer, Home> entry : homes.entrySet()) {
-            if (claimManager.getClaimByID(entry.getKey()).getMembers().contains(uuid)) list.add(entry.getValue());
+        for (Home home : homes) {
+            if (home.getUuid().equals(uuid)) list.add(home);
         }
         return list;
     }

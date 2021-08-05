@@ -14,6 +14,10 @@ public class SchedulerUtils {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, runnable, 0, l);
     }
 
+    public static void runSync(Runnable runnable) {
+        Bukkit.getScheduler().runTask(plugin, runnable);
+    }
+
     public static void setPlugin(Plugin plugin) {
         SchedulerUtils.plugin = plugin;
     }

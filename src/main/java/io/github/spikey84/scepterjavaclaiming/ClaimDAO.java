@@ -3,6 +3,7 @@ package io.github.spikey84.scepterjavaclaiming;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Bytes;
 import io.github.spikey84.scepterjavaclaiming.blacklists.BlackListDAO;
+import io.github.spikey84.scepterjavaclaiming.utils.SchedulerUtils;
 import io.github.spikey84.scepterjavaclaiming.utils.UUIDUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -39,6 +40,7 @@ public class ClaimDAO {
                 int xO = resultSet.getInt("origin_x");
                 int zO = resultSet.getInt("origin_z");
                 byte[] settingsBytes = resultSet.getBytes("settings");
+                //TODO: fix the issue where the setting that was toggle shows up as the setting before it in the database
                 HashMap<ClaimSetting, Boolean> settings = new HashMap<ClaimSetting, Boolean>();
                 for (int i = 0; i < settingsBytes.length; i++) {
                     byte b = settingsBytes[i];
@@ -47,7 +49,7 @@ public class ClaimDAO {
                 String worldName = resultSet.getString("world_name");
                 String serverName = "removed";
 
-                Claim claim = new Claim(new Location(Bukkit.getWorld(worldName), xO, 255, zO), xL, zL, owner, getMembers(connection, id), settings, BlackListDAO.getBlacklist(connection, id));
+                Claim claim = new Claim(new Location(Bukkit.getWorld(worldName), xO, 255, zO), xL, zL, owner, getMembers(connection, id), settings, BlackListDAO.getBlacklist(connection, id), worldName);
                 claim.setId(id);
                 claims.add(claim);
             }
@@ -62,8 +64,7 @@ public class ClaimDAO {
         PreparedStatement statement = null;
 
         try {
-            Class.forName("org.postgresql.Driver");
-            connection.setAutoCommit(false);
+            Class.forName("org.sqlite.JDBC");
 
             String query = """
                     DELETE FROM claims WHERE id=?;
@@ -88,12 +89,6 @@ public class ClaimDAO {
             statement.setInt(1, id);
             statement.execute();
             statement.close();
-            query = """
-                    DELETE FROM claim_homes WHERE claim_id=?;
-                    """;
-            statement = connection.prepareStatement(query);
-            statement.setInt(1, id);
-            statement.execute();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,9 +98,9 @@ public class ClaimDAO {
     public static void addClaim(Connection connection, Claim claim) {
         PreparedStatement statement = null;
 
-        List<Byte> settings = Lists.newArrayList();
+        byte[] settings = new byte[claim.getClaimSettings().size()];
         for (Map.Entry<ClaimSetting, Boolean> entry : claim.getClaimSettings().entrySet()) {
-            if (entry.getValue()) settings.add((byte) 1); else settings.add((byte) 0);
+            if (entry.getValue()) settings[entry.getKey().getId()] = (byte) 1; else settings[entry.getKey().getId()] = (byte) 0;
         }
 
 
@@ -118,10 +113,10 @@ public class ClaimDAO {
                     VALUES\
                     (?, ?, ?, ?, ?, ?, ?);
                     """; else query = """
-                    INSERT INTO claims (id, owner, settings, x_length, z_length, origin_x, origin_z, world_name, settings)\
+                    INSERT INTO claims (id, owner, x_length, z_length, origin_x, origin_z, world_name, settings)\
                     VALUES\
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE \
-                    SET id=?, owner=?, settings=?, x_length=?, z_length=?, origin_x=?, origin_z=?, world_name=?, settings=?;
+                    (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE \
+                    SET id=?, owner=?, x_length=?, z_length=?, origin_x=?, origin_z=?, world_name=?, settings=?;
                     """;
             statement = connection.prepareStatement(query);
 
@@ -131,8 +126,8 @@ public class ClaimDAO {
                 statement.setInt(3, claim.getZLength());
                 statement.setInt(4, claim.getOrigin().getBlockX());
                 statement.setInt(5, claim.getOrigin().getBlockZ());
-                statement.setString(6, "test");
-                statement.setBytes(7, Bytes.toArray(settings));
+                statement.setString(6, claim.getOrigin().getWorld().getName());
+                statement.setBytes(7, settings);
             } else {
                 statement.setInt(1, claim.getId());
                 statement.setString(2, UUIDUtils.strip(claim.getOwner()));
@@ -141,7 +136,7 @@ public class ClaimDAO {
                 statement.setInt(5, claim.getOrigin().getBlockX());
                 statement.setInt(6, claim.getOrigin().getBlockZ());
                 statement.setString(7, claim.getOrigin().getWorld().getName());
-                statement.setBytes(8, Bytes.toArray(settings));
+                statement.setBytes(8, settings);
                 statement.setInt(9, claim.getId());
                 statement.setString(10, UUIDUtils.strip(claim.getOwner()));
                 statement.setInt(11, claim.getXLength());
@@ -149,7 +144,7 @@ public class ClaimDAO {
                 statement.setInt(13, claim.getOrigin().getBlockX());
                 statement.setInt(14, claim.getOrigin().getBlockZ());
                 statement.setString(15, claim.getOrigin().getWorld().getName());
-                statement.setBytes(16, Bytes.toArray(settings));
+                statement.setBytes(16, settings);
             }
 
             statement.execute();

@@ -36,17 +36,25 @@ public class DatabaseManager {
             """;
     private String query4 = """
             CREATE TABLE IF NOT EXISTS block_accounts (\
-            uuid VARCHAR NOT NULL,\
+            uuid VARCHAR NOT NULL PRIMARY KEY,\
             blocks BIGINT NOT NULL\
             );
             """;
     private String query5 = """
-            CREATE TABLE IF NOT EXISTS claim_homes (\
-            claim_id INT NOT NULL,\
+            CREATE TABLE IF NOT EXISTS homes (\
+            id INTEGER PRIMARY KEY AUTOINCREMENT, \
+            uuid VARCHAR NOT NULL,\
             x INT NOT NULL,\
             y INT NOT NULL,\
             z INT NOT NULL,\
             world_name TEXT NOT NULL\
+            );
+            """;
+    private String query6 = """
+            CREATE TABLE IF NOT EXISTS cooldowns (\
+            id INTEGER, \
+            uuid VARCHAR NOT NULL,\
+            lastused TIMESTAMP NOT NULL\
             );
             """;
 
@@ -83,6 +91,9 @@ public class DatabaseManager {
             statement.close();
             statement = connection.createStatement();
             statement.executeUpdate(query5);
+            statement.close();
+            statement = connection.createStatement();
+            statement.executeUpdate(query6);
             statement.close();
         } catch (Exception e) {
             e.printStackTrace();
