@@ -62,7 +62,6 @@
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>me.wasteofoxygen</groupId>
             <artifactId>ScepterJavaEconomy</artifactId>

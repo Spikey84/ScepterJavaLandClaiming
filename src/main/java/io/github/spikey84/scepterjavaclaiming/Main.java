@@ -66,5 +66,6 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ClaimToolListener(claimManager, plugin, configManager), this);
         Bukkit.getPluginManager().registerEvents(new ProtectionListener(claimManager), this);
         Bukkit.getPluginManager().registerEvents(new BlackListListener(claimManager), this);
+        //this should only be on ssca
     }
 }
