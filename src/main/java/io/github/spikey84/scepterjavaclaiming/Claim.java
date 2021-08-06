@@ -149,6 +149,28 @@ public class Claim {
         return false;
     }
 
+    public boolean overlaps(Rectangle rectangle) {
+        if (this.origin.getWorld() != rectangle.getLocation1().getWorld()) return false;
+
+        Rectangle rectangle1 = new Rectangle(this.origin, new Location(this.origin.getWorld(), this.origin.getBlockX() + this.xLength, this.origin.getBlockY(), this.origin.getBlockZ() + this.zLength));
+        Rectangle rectangle2 = rectangle;
+
+//        if (rectangle1.getLeftLocation().getBlockX() == rectangle1.getRightLocation().getBlockX() || rectangle1.getLeftLocation().getBlockZ() == rectangle1.getRightLocation().getBlockZ() || rectangle2.getLeftLocation().getBlockX() == rectangle2.getRightLocation().getBlockX() || rectangle2.getLeftLocation().getBlockZ() == rectangle2.getRightLocation().getBlockZ()) return false;
+//
+//        if (rectangle1.getLeftLocation().getBlockX() >= rectangle2.getRightLocation().getBlockX() || rectangle2.getLeftLocation().getBlockX() >= rectangle1.getRightLocation().getBlockX()) return false;
+//
+//        if (rectangle1.getLeftLocation().getBlockZ() >= rectangle2.getRightLocation().getBlockZ() || rectangle2.getLeftLocation().getBlockZ() >= rectangle1.getRightLocation().getBlockZ()) return false;
+
+        boolean xOverlap = false;
+        if (rectangle1.getLeftLocation().getBlockX() <= rectangle2.getLeftLocation().getBlockX() && rectangle1.getRightLocation().getBlockX() >= rectangle2.getLeftLocation().getBlockX()) xOverlap = true;
+        if (rectangle2.getRightLocation().getBlockX() >= rectangle1.getLeftLocation().getBlockX() && rectangle1.getRightLocation().getBlockX() >= rectangle2.getLeftLocation().getBlockX()) xOverlap = true;
+
+        if (rectangle1.getBottomLocation().getBlockZ() <= rectangle2.getBottomLocation().getBlockZ() && rectangle1.getTopLocation().getBlockZ() >= rectangle2.getBottomLocation().getBlockZ() && xOverlap) return true;
+        if (rectangle2.getTopLocation().getBlockZ() >= rectangle1.getBottomLocation().getBlockZ() && rectangle1.getTopLocation().getBlockZ() >= rectangle2.getBottomLocation().getBlockZ() && xOverlap) return true;
+
+        return false;
+    }
+
     public static boolean inClaim(Claim claim, Location location) {
         Rectangle rectangle = new Rectangle(claim.getOrigin(), new Location(claim.origin.getWorld(), claim.origin.getBlockX() + claim.xLength, claim.origin.getBlockY(), claim.origin.getBlockZ() + claim.zLength));
         //if (location.getBlockX() >= rectangle.getLeftLocation().getBlockX() && location.getBlockX() <= rectangle.getRightLocation().getBlockX() && location.getBlockZ() >= rectangle.getLeftLocation().getBlockZ() && location.getBlockZ() <= rectangle.getRightLocation().getBlockZ()) return true;

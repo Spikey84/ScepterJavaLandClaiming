@@ -21,12 +21,16 @@ public class BlackListListener implements Listener {
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, event.getTo())) continue;
             if (!claim.getBlackList().contains(event.getPlayer().getUniqueId())) continue;
+            if (Claim.inClaim(claim, event.getFrom())) event.getPlayer().teleport(claim.getOrigin().getWorld().getSpawnLocation());
             event.setCancelled(true);
+
+
         }
     }
 
     @EventHandler
     public void playerTeleport(PlayerTeleportEvent event) {
+        if (event.getTo().equals(event.getTo().getWorld().getSpawnLocation())) return;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, event.getTo())) continue;
             if (!claim.getBlackList().contains(event.getPlayer().getUniqueId())) continue;

@@ -54,6 +54,6 @@ public class CooldownManager {
          long milDiffrence = Math.abs(cooldowns.get(uuid).get(id).getTime() - Timestamp.from(Instant.now()).getTime());
 
          if (milDiffrence > minutes * 60000) return -1;
-         return (int) (minutes - milDiffrence/6000);
+         return (int) (minutes - milDiffrence/60000);
      }
 }

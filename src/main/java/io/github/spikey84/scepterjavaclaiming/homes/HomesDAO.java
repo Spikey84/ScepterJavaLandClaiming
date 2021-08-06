@@ -31,7 +31,9 @@ public class HomesDAO {
             while (resultSet.next()) {
                 Location location = new Location(Bukkit.getWorld(resultSet.getString("world_name")), resultSet.getInt("x"), resultSet.getInt("y"), resultSet.getInt("z"));
                 UUID uuid = UUIDUtils.build(resultSet.getString("uuid"));
-                homes.add(new Home(location, uuid));
+                Home home = new Home(location, uuid);
+                home.setId(resultSet.getInt("id"));
+                homes.add(home);
             }
         } catch (Exception e) {
             e.printStackTrace();

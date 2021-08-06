@@ -58,19 +58,17 @@ public class BlackListDAO {
         PreparedStatement statement = null;
 
         try {
+            removeBlacklistedPlayer(connection, id, uuid);
             Class.forName("org.sqlite.JDBC");
             String query = """
-                    INSERT INTO claim_blacklist (id, uuid) \
+                    INSERT INTO claim_blacklist (claim_id, uuid) \
                     VALUES\
-                    (?, ?) ON CONFLICT (id) DO UPDATE \
-                    SET id=? uuid=?;
+                    (?, ?);
                     """;
             statement = connection.prepareStatement(query);
 
             statement.setInt(1, id);
             statement.setString(2, UUIDUtils.strip(uuid));
-            statement.setInt(3, id);
-            statement.setString(4, UUIDUtils.strip(uuid));
 
             statement.execute();
             statement.close();

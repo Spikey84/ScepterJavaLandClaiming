@@ -57,7 +57,7 @@ public class HomesInventory extends BaseInventory {
 
             ItemStack item = new ItemStack(Material.BLUE_DYE);
             item = I.setName(item, ChatColor.BLUE + "Home");
-            item = I.setLore(item, Lore.createLore(ChatColor.WHITE + String.format("x: %s, y: %s, z: %s, world: %s", home.getLocation().getBlockX(), home.getLocation().getBlockY(), home.getLocation().getBlockZ(), home.getLocation().getWorld().getName()), ChatColor.GREEN + "[Click to Travel]"));
+            item = I.setLore(item, Lore.createLore(ChatColor.WHITE + String.format("x: %s, y: %s, z: %s, world: %s, id: %s", home.getLocation().getBlockX(), home.getLocation().getBlockY(), home.getLocation().getBlockZ(), home.getLocation().getWorld().getName(), home.getId()), ChatColor.GREEN + "[Click to Travel]"));
 
             addItem(slots[slot], item, () -> {
                 player.closeInventory();

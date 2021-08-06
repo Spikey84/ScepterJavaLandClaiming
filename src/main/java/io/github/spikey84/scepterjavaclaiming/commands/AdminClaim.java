@@ -83,7 +83,7 @@ public class AdminClaim implements CommandExecutor {
         ChatUtil.message(player, "Please enter a claim you own to unclaim it.");
     }
 
-    //TODO FIGURE OUT WTF THIS SHOULD DO
+    //TODO FIGURE OUT WHAT THIS SHOULD DO
     public void claim(Player player, String... args) {
         if (!claimManager.getTempClaiming().get(player.getUniqueId()).notNullLocations()) {
             ChatUtil.message(player, "Set a first and second location in order to claim.");

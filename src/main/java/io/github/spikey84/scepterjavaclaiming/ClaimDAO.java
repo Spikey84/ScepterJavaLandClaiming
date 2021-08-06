@@ -40,7 +40,6 @@ public class ClaimDAO {
                 int xO = resultSet.getInt("origin_x");
                 int zO = resultSet.getInt("origin_z");
                 byte[] settingsBytes = resultSet.getBytes("settings");
-                //TODO: fix the issue where the setting that was toggle shows up as the setting before it in the database
                 HashMap<ClaimSetting, Boolean> settings = new HashMap<ClaimSetting, Boolean>();
                 for (int i = 0; i < settingsBytes.length; i++) {
                     byte b = settingsBytes[i];

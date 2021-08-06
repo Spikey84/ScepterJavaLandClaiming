@@ -52,7 +52,7 @@ public class ConfigManager {
 
             ConfigurationSection section = claimSettingsSection.getConfigurationSection(settingskey);
             defaultSettings.put(ClaimSetting.valueOf(settingskey.toUpperCase().replace(" ", "_")), section.getBoolean("default"));
-            Bukkit.getLogger().info(ClaimSetting.valueOf(settingskey.toUpperCase().replace(" ", "_")) + "" + section.getBoolean("default"));
+            //Bukkit.getLogger().info(ClaimSetting.valueOf(settingskey.toUpperCase().replace(" ", "_")) + "" + section.getBoolean("default"));
         }
 
         timeNumber = config.getInt("Time");

@@ -76,76 +76,76 @@ public class ClaimCommand implements CommandExecutor {
             case "transfer": transfer(player, args); break;
             case "claim": claim(player, args); break;
             case "blocks": blocks(player, args); break;
-            case "edit": edit(player, args); break;
+            //case "edit": edit(player, args); break;
             default: claim(player, args); break;
         }
 
         return true;
     }
 
-    public void edit(Player player, String... args) {
-
-        if (!cooldownManager.isExpired(player.getUniqueId(), CooldownType.EDIT.getId(), configManager.getToolCooldown() * 60)) {
-            ChatUtil.message(player, "You cannot run this command for another %s minute(s).".formatted((int) ((cooldownManager.getRemainingMinutes(player.getUniqueId(), CooldownType.TOOLS.getId(), configManager.getToolCooldown() * 60)))));
-            return;
-        }
-
-        if (!claimManager.getTempClaiming().get(player.getUniqueId()).notNullLocations()) {
-            ChatUtil.message(player, "Set a first and second location in order to claim.");
-            return;
-        }
-
-        Rectangle rectangle = claimManager.getTempClaiming().get(player.getUniqueId());
-
-        Claim claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(), Lists.newArrayList(),configManager.getDefaultSettings(), Lists.newArrayList(), rectangle.getLeftLocation().getWorld().toString());
-
-        Claim claimToOverride = null;
-
-        for (Claim otherClaim : claimManager.getClaims()) {
-            Location close = otherClaim.getOrigin();
-            Location far = otherClaim.getOrigin();
-            far.setX(far.getX() + otherClaim.getXLength());
-            far.setZ(far.getZ() + otherClaim.getZLength());
-            Location farX = otherClaim.getOrigin();
-            farX.setX(far.getX() + otherClaim.getXLength());
-            Location farZ = otherClaim.getOrigin();
-            farX.setZ(far.getZ() + otherClaim.getZLength());
-            if (!rectangle.getLocation1().equals(close) || !rectangle.getLocation1().equals(far) || !rectangle.getLocation1().equals(farX) || !rectangle.getLocation1().equals(farZ) || !rectangle.getLocation2().equals(close) || !rectangle.getLocation2().equals(far) || !rectangle.getLocation2().equals(farX) || !rectangle.getLocation2().equals(farZ)) {
-                continue;
-            }
-            claimToOverride = otherClaim;
-
-        }
-
-        if (claimToOverride == null) {
-            ChatUtil.message(player, "Please select the corner of a claim to edit.");
-            return;
-        }
-
-        for (Claim otherClaim : claimManager.getClaims()) {
-            if (claim.overlaps(otherClaim) && !otherClaim.equals(claimToOverride)) {
-                ChatUtil.message(player, "This claim overlaps an existing claim.");
-                return;
-            }
-        }
-
-        if (rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength()) > claimBlocksManager.getBlockCount(player.getUniqueId())) {
-            ChatUtil.message(player, "You do not have enough claim blocks. (%s required)".formatted(rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength())));
-            return;
-        }
-
-        if (configManager.getDisabledWorlds().contains(claim.getOrigin().getWorld().getName())) {
-            ChatUtil.message(player, "Claiming is not allowed in this world.");
-            return;
-        }
-
-        claimManager.delClaim(claimToOverride);
-        claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(),claimToOverride.getMembers(), claimToOverride.getClaimSettings(), claimToOverride.getBlackList(), claim.getWorldName());
-        claimManager.addClaim(claim);
-        cooldownManager.updateCooldown(player.getUniqueId(), CooldownType.EDIT.getId(), Timestamp.from(Instant.now()));
-        claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) + rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength()));
-        ChatUtil.message(player, "Area claimed!");
-    }
+//    public void edit(Player player, String... args) {
+//
+//        if (!cooldownManager.isExpired(player.getUniqueId(), CooldownType.EDIT.getId(), configManager.getToolCooldown() * 60)) {
+//            ChatUtil.message(player, "You cannot run this command for another %s minute(s).".formatted((int) ((cooldownManager.getRemainingMinutes(player.getUniqueId(), CooldownType.TOOLS.getId(), configManager.getToolCooldown() * 60)))));
+//            return;
+//        }
+//
+//        if (!claimManager.getTempClaiming().get(player.getUniqueId()).notNullLocations()) {
+//            ChatUtil.message(player, "Set a first and second location in order to claim.");
+//            return;
+//        }
+//
+//        Rectangle rectangle = claimManager.getTempClaiming().get(player.getUniqueId());
+//
+//        Claim claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(), Lists.newArrayList(),configManager.getDefaultSettings(), Lists.newArrayList(), rectangle.getLeftLocation().getWorld().toString());
+//
+//        Claim claimToOverride = null;
+//
+//        for (Claim otherClaim : claimManager.getClaims()) {
+//            Location close = otherClaim.getOrigin().clone();
+//            Location far = otherClaim.getOrigin().clone();
+//            far.setX(far.getX() + otherClaim.getXLength());
+//            far.setZ(far.getZ() + otherClaim.getZLength());
+//            Location farX = otherClaim.getOrigin().clone();
+//            farX.setX(far.getX() + otherClaim.getXLength());
+//            Location farZ = otherClaim.getOrigin().clone();
+//            farX.setZ(far.getZ() + otherClaim.getZLength());
+//            if (!rectangle.getLocation1().equals(close) && !rectangle.getLocation1().equals(far) && !rectangle.getLocation1().equals(farX) && !rectangle.getLocation1().equals(farZ) && !rectangle.getLocation2().equals(close) && !rectangle.getLocation2().equals(far) && !rectangle.getLocation2().equals(farX) && !rectangle.getLocation2().equals(farZ)) {
+//                continue;
+//            }
+//            claimToOverride = otherClaim;
+//
+//        }
+//
+//        if (claimToOverride == null) {
+//            ChatUtil.message(player, "Please select the corner of a claim to edit.");
+//            return;
+//        }
+//
+//        for (Claim otherClaim : claimManager.getClaims()) {
+//            if (claim.overlaps(otherClaim) && !otherClaim.equals(claimToOverride)) {
+//                ChatUtil.message(player, "This claim overlaps an existing claim.");
+//                return;
+//            }
+//        }
+//
+//        if (rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength()) > claimBlocksManager.getBlockCount(player.getUniqueId())) {
+//            ChatUtil.message(player, "You do not have enough claim blocks. (%s required)".formatted(rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength())));
+//            return;
+//        }
+//
+//        if (configManager.getDisabledWorlds().contains(claim.getOrigin().getWorld().getName())) {
+//            ChatUtil.message(player, "Claiming is not allowed in this world.");
+//            return;
+//        }
+//
+//        claimManager.delClaim(claimToOverride);
+//        claim = new Claim(rectangle.getBottomLeftLocation(), rectangle.getXLength(), rectangle.getZLength(), player.getUniqueId(),claimToOverride.getMembers(), claimToOverride.getClaimSettings(), claimToOverride.getBlackList(), claim.getWorldName());
+//        claimManager.addClaim(claim);
+//        cooldownManager.updateCooldown(player.getUniqueId(), CooldownType.EDIT.getId(), Timestamp.from(Instant.now()));
+//        claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) + rectangle.getSize() - (claimToOverride.getXLength() * claimToOverride.getZLength()));
+//        ChatUtil.message(player, "Area claimed!");
+//    }
 
 
     public void help(Player player, String... args) {
@@ -175,7 +175,7 @@ public class ClaimCommand implements CommandExecutor {
 
             if (!claim.getMembers().contains(player.getUniqueId())) {
                 ChatUtil.message(player, "You must be a member of this claim to access settings.");
-                continue;
+                return;
             }
 
             new SettingsInventory(plugin, claimManager, claim, player).open(player);
@@ -232,6 +232,10 @@ public class ClaimCommand implements CommandExecutor {
                 return;
             }
 
+            if (!claim.getOwner().equals(target.getUniqueId())) {
+                ChatUtil.message(player, "You cannot remove the owner of this claim.");
+                return;
+            }
             claim.removeMember(target.getUniqueId());
             ChatUtil.message(player, String.format("%s has been removed from your claim.", args[1]));
             return;
@@ -263,8 +267,14 @@ public class ClaimCommand implements CommandExecutor {
                 return;
             }
 
+            if (target.getUniqueId().equals(claim.getOwner())) {
+                ChatUtil.message(player, "You cannot blacklist the owner of a claim.");
+                return;
+            }
+
 
             claim.addBlacklist(target.getUniqueId());
+
             ChatUtil.message(player, String.format("%s has been blacklisted from this claim.", args[1]));
             return;
         }

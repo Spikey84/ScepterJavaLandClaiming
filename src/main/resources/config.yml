@@ -30,7 +30,6 @@ ClaimHelp: # showed when running /claim help - ill color code this later
   - "/claim unblacklist <user> - removes a user from your claim blacklist (must be claim owner)" # Permission: scepter.default
   - "/claim transfer <user> - transfers claim ownership" # Permission: scepter.default
   - "/claim blocks - displays a players claim blocks" # Permission: scepter.default
-  - "/claim edit - Allows you to modify an existing claim" # Permission: scepter.default
   - "/claim - claim the land after selecting POS1 & POS2" # Permission: scepter.default
   - "/unclaim - unclaim your land, taxes will be charged if you own more than 150 blocks" # Permission:
   - "/trust <user> - trust a user in your claim" # Permission: scepter.default

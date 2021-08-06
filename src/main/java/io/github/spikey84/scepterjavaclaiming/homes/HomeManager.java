@@ -38,6 +38,17 @@ public class HomeManager {
         });
     }
 
+    public void delHome(Home home) {
+        homes.remove(home);
+        SchedulerUtils.runAsync(() -> {
+            try (Connection connection = DatabaseManager.getConnection()) {
+                HomesDAO.removeHome(connection, home.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public Home getHome(int id) {
         return homes.get(id);
     }

@@ -1,0 +1,7 @@
+command:
+  subcommand1:
+  subcommand2:
+    subsubcommand:
+
+  subcommand3:
+    {player}

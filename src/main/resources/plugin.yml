@@ -19,3 +19,4 @@ commands:
   untrust:
   sellclaimblocks:
   buyclaimblocks:
+  delhome:

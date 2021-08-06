@@ -65,8 +65,16 @@ public class ClaimToolListener implements Listener {
     }
 
     @EventHandler
+    public void checker(PlayerInteractEvent event) {
+        if (event.getItem() == null || !event.getItem().isSimilar(configManager.getClaimChecker()) || event.getClickedBlock() == null) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
     public void anvilClaimTool(PrepareAnvilEvent event) {
         for (ItemStack itemStack : event.getInventory()) {
+            if (itemStack == null) return;
             if (itemStack.isSimilar(configManager.getClaimTool()) || itemStack.isSimilar(configManager.getClaimChecker())) {
                 event.setResult(new ItemStack(Material.AIR));
                 return;

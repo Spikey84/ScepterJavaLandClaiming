@@ -4,6 +4,7 @@ import io.github.spikey84.scepterjavaclaiming.blacklists.BlackListListener;
 import io.github.spikey84.scepterjavaclaiming.blocks.ClaimBlocksManager;
 import io.github.spikey84.scepterjavaclaiming.commands.*;
 import io.github.spikey84.scepterjavaclaiming.cooldowns.CooldownManager;
+import io.github.spikey84.scepterjavaclaiming.homes.DelHome;
 import io.github.spikey84.scepterjavaclaiming.homes.HomeCommand;
 import io.github.spikey84.scepterjavaclaiming.homes.HomeManager;
 import io.github.spikey84.scepterjavaclaiming.homes.SethomeCommand;
@@ -54,6 +55,7 @@ public class Main extends JavaPlugin {
         getCommand("unclaim").setExecutor(new UnclaimCommand(claimManager, configManager, claimBlocksManager));
         getCommand("home").setExecutor(new HomeCommand(homeManager, plugin));
         getCommand("sethome").setExecutor(new SethomeCommand(homeManager));
+        getCommand("delhome").setExecutor(new DelHome(homeManager, plugin));
         getCommand("adminclaim").setExecutor(new AdminClaim(claimManager, plugin, configManager));
         getCommand("adminclaim").setTabCompleter(new AdminTab());
         getCommand("trust").setExecutor(new TrustCommand(claimManager));
