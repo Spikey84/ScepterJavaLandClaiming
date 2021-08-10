@@ -3,6 +3,7 @@ package io.github.spikey84.scepterjavaclaiming.commands;
 import io.github.spikey84.scepterjavaclaiming.Claim;
 import io.github.spikey84.scepterjavaclaiming.ClaimManager;
 import io.github.spikey84.scepterjavaclaiming.ConfigManager;
+import io.github.spikey84.scepterjavaclaiming.EconomyManager;
 import io.github.spikey84.scepterjavaclaiming.blocks.ClaimBlocksManager;
 import io.github.spikey84.scepterjavaclaiming.utils.ChatUtil;
 import org.bukkit.command.Command;
@@ -15,12 +16,14 @@ public class UnclaimCommand implements CommandExecutor {
     private ClaimManager claimManager;
     private ConfigManager configManager;
     private ClaimBlocksManager claimBlocksManager;
+    private EconomyManager economyManager;
 
-    public UnclaimCommand(ClaimManager claimManager, ConfigManager configManager, ClaimBlocksManager claimBlocksManager) {
+    public UnclaimCommand(ClaimManager claimManager, ConfigManager configManager, ClaimBlocksManager claimBlocksManager, EconomyManager economyManager) {
         this.claimManager = claimManager;
 
         this.configManager = configManager;
         this.claimBlocksManager = claimBlocksManager;
+        this.economyManager = economyManager;
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -31,7 +34,7 @@ public class UnclaimCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (!player.hasPermission("scepter.default")) {
+        if (!player.hasPermission("claiming.default")) {
             ChatUtil.message(player, "You do not have permission to run this command.");
             return true;
         }
@@ -55,13 +58,13 @@ public class UnclaimCommand implements CommandExecutor {
 
         claimManager.delClaim(finalClaim);
 
-        if (finalClaim.getXLength() * finalClaim.getZLength() < configManager.getUnclaimTaxChargeMin()) {
-            ChatUtil.message(player, "This claim has been removed. Returning %s claim blocks.".formatted((finalClaim.getXLength() * finalClaim.getZLength())));
-            claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) + (finalClaim.getXLength() * finalClaim.getZLength()));
-        } else {
-            ChatUtil.message(player, "This claim has been removed. Returning %s claim blocks.".formatted(((finalClaim.getXLength() * finalClaim.getZLength()) * (configManager.getUnclaimTax()/100))));
-            claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) + ((finalClaim.getXLength() * finalClaim.getZLength()) * (configManager.getUnclaimTax()/100)));
-        }
+        //if (finalClaim.getXLength() * finalClaim.getZLength() < configManager.getUnclaimTaxChargeMin()) {
+            ChatUtil.message(player, "This claim has been removed. Refunding %s.".formatted((finalClaim.getXLength() * finalClaim.getZLength() * configManager.getClaimBlockSellPrice())));
+            economyManager.addMoney(player.getUniqueId(), ((finalClaim.getXLength() * finalClaim.getZLength() * configManager.getClaimBlockSellPrice())));
+//        } else {
+//            ChatUtil.message(player, "This claim has been removed. Refunding %s.".formatted(((finalClaim.getXLength() * finalClaim.getZLength()) * configManager.getClaimBlockSellPrice() * (configManager.getUnclaimTax()/100))));
+//            economyManager.addMoney(player.getUniqueId(), ((finalClaim.getXLength() * finalClaim.getZLength() * configManager.getClaimBlockSellPrice())) * (configManager.getUnclaimTax()/100));
+//        }
         return true;
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.spikey84.scepterjavaclaiming.Claim;
 import io.github.spikey84.scepterjavaclaiming.ClaimManager;
 import io.github.spikey84.scepterjavaclaiming.ConfigManager;
+import io.github.spikey84.scepterjavaclaiming.EconomyManager;
 import io.github.spikey84.scepterjavaclaiming.blocks.ClaimBlocksManager;
 import io.github.spikey84.scepterjavaclaiming.cooldowns.CooldownManager;
 import io.github.spikey84.scepterjavaclaiming.cooldowns.CooldownType;
@@ -13,17 +14,14 @@ import io.github.spikey84.scepterjavaclaiming.utils.ChatUtil;
 import io.github.spikey84.scepterjavaclaiming.utils.ItemUtils;
 import io.github.spikey84.scepterjavaclaiming.utils.Rectangle;
 import io.github.spikey84.scepterjavaclaiming.utils.StringUtils;
-import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
@@ -36,14 +34,16 @@ public class ClaimCommand implements CommandExecutor {
     private ClaimBlocksManager claimBlocksManager;
     private Plugin plugin;
     private CooldownManager cooldownManager;
+    private EconomyManager economyManager;
 
-    public ClaimCommand(ConfigManager configManager, ClaimManager claimManager, ClaimBlocksManager claimBlocksManager, HomeManager homeManager, Plugin plugin, CooldownManager cooldownManager) {
+    public ClaimCommand(ConfigManager configManager, ClaimManager claimManager, ClaimBlocksManager claimBlocksManager, HomeManager homeManager, Plugin plugin, CooldownManager cooldownManager, EconomyManager economyManager) {
         this.configManager = configManager;
         this.claimManager = claimManager;
         this.claimBlocksManager = claimBlocksManager;
         this.homeManager = homeManager;
         this.plugin = plugin;
         this.cooldownManager = cooldownManager;
+        this.economyManager = economyManager;
     }
 
     @Override
@@ -55,13 +55,13 @@ public class ClaimCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (!player.hasPermission("scepter.default")) {
+        if (!player.hasPermission("claiming.default")) {
             ChatUtil.message(player, "You do not have permission to run this command.");
             return true;
         }
 
         if (args.length < 1) {
-            ChatUtil.message(player, "Please enter a sub command.");
+            claim(player, args);
             return true;
         }
 
@@ -71,11 +71,8 @@ public class ClaimCommand implements CommandExecutor {
             case "settings": settings(player, args); break;
             case "add": add(player, args); break;
             case "remove": remove(player, args); break;
-            case "blacklist": blacklist(player, args); break;
-            case "unblacklist": unblacklist(player, args); break;
             case "transfer": transfer(player, args); break;
             case "claim": claim(player, args); break;
-            case "blocks": blocks(player, args); break;
             //case "edit": edit(player, args); break;
             default: claim(player, args); break;
         }
@@ -341,10 +338,13 @@ public class ClaimCommand implements CommandExecutor {
     }
 
     public void claim(Player player, String... args) {
+        claimManager.getTempClaiming().putIfAbsent(player.getUniqueId(), new Rectangle(null, null));
         if (!claimManager.getTempClaiming().get(player.getUniqueId()).notNullLocations()) {
             ChatUtil.message(player, "Set a first and second location in order to claim.");
             return;
         }
+
+
 
         Rectangle rectangle = claimManager.getTempClaiming().get(player.getUniqueId());
 
@@ -357,19 +357,18 @@ public class ClaimCommand implements CommandExecutor {
             }
         }
 
-        if (rectangle.getSize() > claimBlocksManager.getBlockCount(player.getUniqueId())) {
-            ChatUtil.message(player, "You do not have enough claim blocks. (%s required)".formatted(rectangle.getSize()));
-            return;
-        }
-
         if (configManager.getDisabledWorlds().contains(claim.getOrigin().getWorld().getName())) {
             ChatUtil.message(player, "Claiming is not allowed in this world.");
             return;
         }
 
-        claimManager.addClaim(claim);
-        claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) - rectangle.getSize());
-        ChatUtil.message(player, "Area claimed!");
+        if (economyManager.chargeMoney(player.getUniqueId(), claim.getXLength() * claim.getZLength() * configManager.getClaimBlockBuyPice())) {
+            claimManager.addClaim(claim);
+            //claimBlocksManager.setBlockCount(player.getUniqueId(), claimBlocksManager.getBlockCount(player.getUniqueId()) - rectangle.getSize());
+            ChatUtil.message(player, "Area claimed!");
+            return;
+        }
+        ChatUtil.message(player, "You do not have enough money to claim this land. You must have %s.".formatted(claim.getXLength() * claim.getZLength() * configManager.getClaimBlockBuyPice()));
     }
 
     public void blocks(Player player, String... args) {

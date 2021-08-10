@@ -1,22 +1,13 @@
 main: io.github.spikey84.scepterjavaclaiming.Main
 version: 1.0
-name: ScepterJavaLandClaiming
+name: SpikeyClaiming
 api-version: 1.13
-depend:
-  - ScepterJavaEconomy
 commands:
   claim:
     usage: /claim
   unclaim:
     usage: /unclaim
-  home:
-  sethome:
   adminclaim:
     aliases:
       - ac
       - aclaim
-  trust:
-  untrust:
-  sellclaimblocks:
-  buyclaimblocks:
-  delhome:

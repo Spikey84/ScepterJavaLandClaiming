@@ -25,6 +25,7 @@ import java.util.List;
 //TODO mob griefing just outside claim
 //TODO fix tnt cannon
 //TODO fix crafting table
+//TODO fix lava casting
 
 public class ProtectionListener implements Listener {
     private ClaimManager claimManager;
@@ -205,7 +206,7 @@ public class ProtectionListener implements Listener {
     }
 
     public boolean interactionAllowed(ClaimSetting setting, Block block, Player player) {
-        if (player.hasPermission("scepter.adminbypass")) return true;
+        if (player.hasPermission("claiming.adminbypass")) return true;
             for (Claim claim : claimManager.getClaims()) {
                 if (!Claim.inClaim(claim, block.getLocation())) continue;
                 claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
@@ -216,7 +217,7 @@ public class ProtectionListener implements Listener {
     }
 
     public boolean interactionAllowed(Block block, Player player) {
-        if (player.hasPermission("scepter.adminbypass")) return true;
+        if (player.hasPermission("claiming.adminbypass")) return true;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, block.getLocation())) continue;
             claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
@@ -227,7 +228,7 @@ public class ProtectionListener implements Listener {
     }
 
     public boolean interactionAllowed(Location location, Player player) {
-        if (player.hasPermission("scepter.adminbypass")) return true;
+        if (player.hasPermission("claiming.adminbypass")) return true;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
             claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());
@@ -255,7 +256,7 @@ public class ProtectionListener implements Listener {
     }
 
     public boolean interactionAllowed(Location location, ClaimSetting setting, Player player) {
-        if (player.hasPermission("scepter.adminbypass")) return true;
+        if (player.hasPermission("claiming.adminbypass")) return true;
         for (Claim claim : claimManager.getClaims()) {
             if (!Claim.inClaim(claim, location)) continue;
             claimManager.getTrustedMembers().putIfAbsent(claim, Lists.newArrayList());

@@ -1,3 +1,7 @@
+primaryColor: '#b31b37'
+secondaryColor: '#ffffff'
+displayTitle: SSCA
+
 Time: 10
 TimeFormat: minutes # option of minutes or hours
 ClaimBlocksPerTime: 4
@@ -17,33 +21,24 @@ ToolCooldown: 24 # Amount of hours before someone can /claim tools and get the t
 
 ClaimDisabledWorlds: ["ResouceWorld", "world_nether", "world_the_end"]
 
-ClaimHelp: # showed when running /claim help - ill color code this later
-  - "&e---&dScepterJava&e---&dClaim&e---&dHelp&e---"
+ClaimHelp: # showed when running /claim help
+  - "&e---&dSpikeyClaims&e---"
   - "/claim help - this menu"
   - "/claim tools - get given the claim tools"
   - "/claim settings - claim settings"
-  - "/sethome - set player home" # Permission: scepter.default
-  - "/home - opens a gui containing a players homes" # Permission: scepter.default
-  - "/claim add <user> - adds a user as a member of your claim (must be claim owner)" # Permission: scepter.default
-  - "/claim remove <user> - remove a user as a member of your claim (must be claim owner)" # Permission: scepter.default
-  - "/claim blacklist <user> - adds a user to your claim blacklist, they cannot enter your claim (must be claim owner)" # Permission: scepter.default
-  - "/claim unblacklist <user> - removes a user from your claim blacklist (must be claim owner)" # Permission: scepter.default
-  - "/claim transfer <user> - transfers claim ownership" # Permission: scepter.default
-  - "/claim blocks - displays a players claim blocks" # Permission: scepter.default
-  - "/claim - claim the land after selecting POS1 & POS2" # Permission: scepter.default
+  - "/claim add <user> - adds a user as a member of your claim (must be claim owner)" # Permission: claiming.default
+  - "/claim remove <user> - remove a user as a member of your claim (must be claim owner)" # Permission: claiming.default
+  - "/claim transfer <user> - transfers claim ownership" # Permission: claiming.default
+  - "/claim - claim the land after selecting POS1 & POS2" # Permission: claiming.default
   - "/unclaim - unclaim your land, taxes will be charged if you own more than 150 blocks" # Permission:
-  - "/trust <user> - trust a user in your claim" # Permission: scepter.default
-  - "/untrust <user> - untrust a user in your claim" # Permission: scepter.default
-  - "/buyclaimblocks <amount> - buy claim blocks $250 each" # Permission: scepter.default
-  - "/sellclaimblocks <amount> - sell claim blocks $50 each" # Permission: scepter.default
-  - "/adminclaim claim <name>- admin claim land (usually for spawn claiming)" # Permission: scepter.adminclaim
-  - "/adminclaim settings - admin claim settings" # Permission: scepter.adminclaim
-  - "/adminclaim unclaim - unclaim any land" # Permission: scepter.adminclaim
+  - "/adminclaim claim <name>- admin claim land (usually for spawn claiming)" # Permission: claiming.adminclaim
+  - "/adminclaim settings - admin claim settings" # Permission: claiming.adminclaim
+  - "/adminclaim unclaim - unclaim any land" # Permission: claiming.adminclaim
 
 # Staff Permissions
-  ## Blacklist Bypass: scepter.blacklistbypass (so they cant try to black list staff from entering their claim)
-# Interact with anything: scepter.adminbypass
-# Open the claim settings for the claim you are currently standing in: scepter.adminclaim (/claimsettings)
+  ## Blacklist Bypass: claiming.blacklistbypass (so they cant try to black list staff from entering their claim)
+# Interact with anything: claiming.adminbypass
+# Open the claim settings for the claim you are currently standing in: claiming.adminclaim (/claimsettings)
 
 ClaimSettings:
   pvp:

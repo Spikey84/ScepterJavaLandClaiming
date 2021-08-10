@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.spikey84.scepterjavalandclaiming</groupId>
-    <artifactId>ScepterJavaLandClaiming</artifactId>
+    <artifactId>SpikeyClaiming</artifactId>
     <version>1.0</version>
     <build>
         <plugins>
@@ -39,6 +39,11 @@
             <url>file://home/main/.m2/repository</url>
         </repository>
 
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
+
 
     </repositories>
 
@@ -62,10 +67,12 @@
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
-            <groupId>me.wasteofoxygen</groupId>
-            <artifactId>ScepterJavaEconomy</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

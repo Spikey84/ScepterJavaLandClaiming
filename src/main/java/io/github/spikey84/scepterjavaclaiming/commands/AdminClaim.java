@@ -34,7 +34,7 @@ public class AdminClaim implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (!player.hasPermission("scepter.adminclaim")) {
+        if (!player.hasPermission("claiming.adminclaim")) {
             ChatUtil.message(player, "You do not have permission to run this command.");
             return true;
         }
